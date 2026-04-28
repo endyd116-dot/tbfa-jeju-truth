@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>제주 교사 사망사건 진상규명 - TRUTH for JEJU TEACHER</title>
+    <meta name="description" content="제주 교사 사망사건 진상규명을 위한 시민 연대 플랫폼. 데이터로 증명하는 차별의 실태.">
+    <meta property="og:title" content="제주 교사 사망사건 진상규명 - TRUTH for JEJU TEACHER">
+    <meta property="og:description" content="국가는 인정했습니다. 제주는 외면했습니다. 데이터로 증명하는 진실.">
+    <meta property="og:type" content="website">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-neutral-950 text-neutral-100 selection:bg-red-900 selection:text-white">
+    <div id="emergency-bar-container"></div>
+
+    <nav class="fixed top-8 w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="text-red-600 font-black text-xl tracking-tighter">TRUTH <span class="text-white">JEJU</span></span>
+            </div>
+            <div class="hidden md:flex gap-8 text-sm font-bold text-neutral-400">
+                <a href="#milestone" class="hover:text-red-500 transition-colors">사건 마일스톤</a>
+                <a href="#suspicion" class="hover:text-red-500 transition-colors">6대 의혹</a>
+                <a href="#timeline" class="hover:text-red-500 transition-colors">방치 타임라인</a>
+                <a href="#comparison" class="hover:text-red-500 transition-colors">차별의 증거</a>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="admin.html" class="text-xs border border-white/20 px-3 py-1.5 rounded hover:bg-red-600 hover:border-red-600 hover:text-white transition-all font-bold">관리자</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="pt-44 pb-24 px-6 max-w-7xl mx-auto">
+        <div class="inline-block px-4 py-1.5 border border-red-600 bg-red-600/10 rounded-full text-red-500 text-xs font-black mb-8 animate-pulse tracking-widest">
+            ● LIVE - 2026.04.27 사망 1년 경과
+        </div>
+        <h1 class="text-5xl md:text-8xl font-black leading-[1.05] mb-10 tracking-tighter">
+            국가는 인정했습니다.<br/>
+            <span class="text-red-600">제주는 외면했습니다.</span>
+        </h1>
+        <p class="text-xl text-neutral-400 max-w-3xl leading-relaxed mb-10">
+            故 현승준 교사가 떠난 지 1년. 사학연금재단은 순직을 인정했습니다.<br/>
+            그러나 제주도교육청은 <strong class="text-white">5개월간 0원의 지원</strong>, <strong class="text-white">1년간 0회의 사과</strong>로 응답했습니다.<br/>
+            <span class="text-red-500">우리는 데이터로 진실을 증명합니다.</span>
+        </p>
+        <div class="flex flex-wrap gap-4">
+            <a href="#comparison" class="px-8 py-4 bg-red-600 text-white rounded-2xl font-black hover:bg-red-700 transition-all shadow-2xl shadow-red-600/30">차별의 증거 보기 →</a>
+            <a href="#timeline" class="px-8 py-4 border border-white/20 text-white rounded-2xl font-black hover:bg-white hover:text-black transition-all">1년의 기록 보기</a>
+        </div>
+    </header>
+
+    <section id="milestone" class="py-24 px-6 bg-neutral-900/30">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
+                <div>
+                    <h2 class="text-4xl font-black mb-3">MILESTONES</h2>
+                    <p class="text-neutral-500">2026년 4월 27일 기준 - 비극, 방치, 그리고 저항의 흐름</p>
+                </div>
+                <div id="milestone-links" class="flex flex-wrap gap-2 text-xs"></div>
+            </div>
+            <div class="relative">
+                <div id="milestone-container" class="flex overflow-x-auto gap-8 pb-12 snap-x no-scrollbar"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="suspicion" class="py-32 px-6 max-w-7xl mx-auto">
+        <h2 class="text-4xl font-black mb-4 border-l-8 border-red-600 pl-6 uppercase italic">EXPOSING THE SHADOWS</h2>
+        <p class="text-neutral-500 mb-16 pl-6">교육청이 답해야 할 6가지 의혹</p>
+        <div id="suspicion-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+    </section>
+
+    <section id="timeline" class="py-32 px-6 bg-white text-black">
+        <div class="max-w-5xl mx-auto">
+            <div class="flex justify-between items-baseline mb-20 border-b-4 border-black pb-4">
+                <h2 class="text-5xl font-black uppercase tracking-tighter">NEGLECT TIMELINE</h2>
+                <span class="text-sm font-black text-neutral-400">교육청 vs 유가족 1년의 사투</span>
+            </div>
+            <div id="timeline-list" class="space-y-16"></div>
+        </div>
+    </section>
+
+    <section id="comparison" class="py-32 px-6 max-w-7xl mx-auto">
+        <div class="text-center mb-24">
+            <div class="inline-block px-4 py-1.5 bg-red-600 text-white text-xs font-black mb-6 tracking-widest">DATA EVIDENCE</div>
+            <h2 class="text-5xl md:text-6xl font-black mb-6 italic tracking-tighter">"Is Jeju's Life <span class="underline decoration-red-600 decoration-8 underline-offset-8">Worth Less?</span>"</h2>
+            <p class="text-neutral-400 text-lg">객관적 데이터로 증명하는 제주 교사 유족 차별 실태</p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-12" id="comparison-display"></div>
+
+        <div class="mt-32 grid lg:grid-cols-2 gap-16 items-center">
+            <div class="bg-neutral-900/50 p-10 rounded-3xl border border-white/10">
+                <h3 class="text-2xl font-black mb-8 flex items-center gap-3">
+                    <i data-lucide="trending-down" class="text-red-500"></i> 순직 인정 후 지원 격차 (단위: 만원)
+                </h3>
+                <canvas id="comparisonChart" class="w-full"></canvas>
+            </div>
+            <div class="space-y-4" id="comparison-text-data"></div>
+        </div>
+    </section>
+
+    <div id="cta-container"></div>
+
+    <div id="detail-modal" class="fixed inset-0 z-[100] hidden bg-black/95 backdrop-blur-2xl flex items-center justify-center p-4 md:p-10">
+        <div class="bg-neutral-900 w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-[2.5rem] border border-white/10 relative">
+            <button onclick="closeModal()" class="absolute top-8 right-8 z-50 text-white/50 hover:text-white transition-colors bg-white/10 p-3 rounded-full">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div id="modal-content" class="p-8 md:p-16"></div>
+        </div>
+    </div>
+
+    <footer class="py-20 border-t border-white/5 bg-neutral-950" id="footer-container">
+        <!-- Rendered dynamically -->
+    </footer>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>

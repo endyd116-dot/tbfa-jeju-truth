@@ -1,0 +1,5 @@
+# 관리자 단축 경로
+/admin    /admin.html    200
+
+# 404 폴백
+/*        /index.html    404

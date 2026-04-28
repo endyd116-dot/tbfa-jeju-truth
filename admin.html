@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>관리 시스템 - 제주 교사 유가족 협의회</title>
+    <meta name="robots" content="noindex, nofollow">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .sidebar-link.active { background: #dc2626; color: white; }
+        .permission-badge { font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; }
+        #admin-panel { display: none; }
+        #editor-container { min-height: 320px; background: white; }
+        .ql-editor { min-height: 280px; font-size: 15px; position: relative; }
+        .ql-editor img { cursor: pointer; max-width: 100%; }
+        .ql-editor img.img-selected {
+            outline: 3px solid #dc2626;
+            outline-offset: 3px;
+        }
+
+        #img-floating-toolbar {
+            position: absolute;
+            display: none;
+            background: #111;
+            border-radius: 12px;
+            padding: 8px;
+            gap: 4px;
+            z-index: 1000;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            transform: translate(-50%, -110%);
+        }
+        #img-floating-toolbar.active { display: flex; }
+        #img-floating-toolbar button {
+            background: transparent;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        #img-floating-toolbar button:hover { background: #dc2626; }
+        #img-floating-toolbar .divider { width: 1px; background: #333; margin: 0 4px; }
+        #img-floating-toolbar input {
+            width: 60px;
+            background: #222;
+            border: 1px solid #333;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .img-resize-handle {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: #dc2626;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: none;
+            z-index: 999;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        .img-resize-handle.active { display: block; }
+        .img-resize-handle.tl { cursor: nwse-resize; }
+        .img-resize-handle.tr { cursor: nesw-resize; }
+        .img-resize-handle.bl { cursor: nesw-resize; }
+        .img-resize-handle.br { cursor: nwse-resize; }
+
+        .log-row:hover { background: #fafafa; }
+        .log-action-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body class="bg-neutral-50 text-neutral-900 font-sans">
+    <div id="login-screen" class="fixed inset-0 bg-neutral-950 z-[2000] flex items-center justify-center">
+        <div class="bg-white p-12 rounded-[2.5rem] shadow-2xl w-full max-w-md">
+            <div class="flex justify-center mb-10">
+                <div class="w-16 h-16 bg-red-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-red-600/30">
+                    <i data-lucide="shield-check" class="text-white w-8 h-8"></i>
+                </div>
+            </div>
+            <h1 class="text-3xl font-black mb-2 text-center tracking-tighter">TRUTH ADMIN</h1>
+            <p class="text-center text-neutral-400 text-sm mb-10">협의회 공용 관리 시스템 인증</p>
+            <div class="space-y-4">
+                <input type="text" id="admin-id" placeholder="ID" class="w-full p-5 bg-neutral-50 border border-neutral-200 rounded-2xl focus:ring-2 ring-red-600 outline-none font-bold" autocomplete="username">
+                <input type="password" id="admin-pw" placeholder="Password" class="w-full p-5 bg-neutral-50 border border-neutral-200 rounded-2xl focus:ring-2 ring-red-600 outline-none font-bold" autocomplete="current-password">
+                <button onclick="handleLogin()" class="w-full bg-red-600 text-white py-5 rounded-2xl font-black text-lg hover:bg-red-700 transition-all shadow-2xl shadow-red-200 mt-4">접속하기</button>
+                <p class="text-center text-xs text-neutral-400 mt-4">⚠️ 최초 배포 후 기본 비밀번호를 즉시 변경하세요</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-panel" class="flex min-h-screen">
+        <aside class="w-80 bg-neutral-900 text-white p-8 flex flex-col fixed h-full z-10">
+            <div class="mb-14 flex items-center gap-4">
+                <div class="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center">
+                    <i data-lucide="activity" class="w-7 h-7 text-white"></i>
+                </div>
+                <div>
+                    <span class="font-black text-2xl tracking-tighter block leading-none">TRUTH</span>
+                    <span class="text-red-500 text-[10px] font-bold uppercase tracking-[0.3em]">Management</span>
+                </div>
+            </div>
+            <nav class="flex-1 space-y-2 overflow-y-auto" id="admin-nav"></nav>
+            <div class="pt-8 border-t border-white/10">
+                <div class="flex items-center gap-4 mb-6">
+                    <div id="user-avatar" class="w-12 h-12 rounded-2xl bg-white/10 text-white flex items-center justify-center font-black text-xl">A</div>
+                    <div>
+                        <div class="text-sm font-black" id="current-user-name">Loading...</div>
+                        <div class="text-[10px] text-red-500 uppercase font-black tracking-widest" id="current-user-role">Super Admin</div>
+                    </div>
+                </div>
+                <button onclick="handleLogout()" class="w-full py-4 text-xs font-black bg-white/5 hover:bg-red-600/20 hover:text-red-500 rounded-xl transition-all">로그아웃</button>
+            </div>
+        </aside>
+
+        <main class="flex-1 ml-80 p-16 bg-neutral-50">
+            <header class="flex justify-between items-center mb-16">
+                <div>
+                    <h2 class="text-5xl font-black tracking-tighter mb-2" id="view-title">Dashboard</h2>
+                    <p class="text-neutral-400 font-medium" id="view-desc">시스템 현황 및 관리 지표</p>
+                </div>
+                <div class="flex gap-4">
+                    <a href="index.html" target="_blank" class="px-8 py-4 border-2 border-neutral-200 bg-white rounded-2xl text-sm font-black hover:bg-neutral-50 transition-all flex items-center gap-3">
+                        <i data-lucide="external-link" class="w-4 h-4 text-red-600"></i> 외부 폭로 페이지
+                    </a>
+                </div>
+            </header>
+
+            <div id="admin-content" class="min-h-[600px]"></div>
+        </main>
+    </div>
+
+    <div id="editor-modal" class="fixed inset-0 z-[1100] hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-8">
+        <div class="bg-white w-full max-w-6xl rounded-[3rem] shadow-3xl overflow-hidden flex flex-col max-h-[92vh]">
+            <div class="p-8 border-b flex justify-between items-center bg-white">
+                <h3 class="font-black text-2xl tracking-tighter" id="modal-title">콘텐츠 편집</h3>
+                <button onclick="closeEditor()" class="p-3 hover:bg-neutral-100 rounded-full transition-colors"><i data-lucide="x"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-12 space-y-8">
+                <div id="dynamic-fields" class="grid grid-cols-2 gap-8"></div>
+
+                <div class="space-y-4">
+                    <label class="text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em]">대표 이미지 / 첨부 미디어</label>
+                    <div class="flex gap-4">
+                        <input type="text" id="edit-image" placeholder="이미지 URL을 입력하세요 (예: https://...)" class="flex-1 p-5 bg-neutral-50 border border-neutral-100 rounded-2xl text-sm font-bold">
+                        <label class="px-8 bg-neutral-900 text-white rounded-2xl text-xs font-black flex items-center cursor-pointer">
+                            파일 업로드
+                            <input type="file" id="edit-image-file" class="hidden" accept="image/*" onchange="handleImageUpload(event)">
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <label class="text-[10px] font-black text-neutral-400 uppercase block mb-2">배치 방법</label>
+                            <select id="edit-image-align" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl text-xs font-bold">
+                                <option value="left">좌측 정렬</option>
+                                <option value="center" selected>중앙 정렬</option>
+                                <option value="right">우측 정렬</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-neutral-400 uppercase block mb-2">크기 (너비 %)</label>
+                            <input type="number" id="edit-image-width" min="20" max="100" value="100" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl text-xs font-bold">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-neutral-400 uppercase block mb-2">미리보기</label>
+                            <div id="image-preview" class="w-full h-12 bg-neutral-100 rounded-2xl flex items-center justify-center text-[10px] text-neutral-400 font-bold">이미지 없음</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <label class="text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em]">첨부 파일</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" id="edit-file" placeholder="파일명 (예: 보고서.pdf)" class="p-5 bg-neutral-50 border border-neutral-100 rounded-2xl text-sm font-bold">
+                        <input type="text" id="edit-file-url" placeholder="다운로드 URL" class="p-5 bg-neutral-50 border border-neutral-100 rounded-2xl text-sm font-bold">
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <label class="text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em]">본문 내용 (이미지 클릭 → 크기/정렬 제어)</label>
+                    <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 text-xs text-blue-700 font-bold">
+                        💡 사용법: 툴바에서 <span class="bg-white px-2 py-1 rounded">🖼️ 이미지</span>(파일 업로드) 또는 <span class="bg-white px-2 py-1 rounded">🔗 URL</span>(URL 삽입) 클릭 → 본문에 삽입된 이미지를 <strong>한번 클릭</strong>하면 크기 조절 핸들과 정렬 컨트롤이 표시됩니다.
+                    </div>
+                    <div id="editor-wrap" class="relative bg-neutral-50 rounded-2xl border border-neutral-100">
+                        <div id="editor-container"></div>
+                        <div id="img-floating-toolbar">
+                            <button onclick="alignSelectedImage('left')" title="좌측 정렬">⬅ Left</button>
+                            <button onclick="alignSelectedImage('center')" title="중앙 정렬">↔ Center</button>
+                            <button onclick="alignSelectedImage('right')" title="우측 정렬">Right ➡</button>
+                            <div class="divider"></div>
+                            <input type="number" id="img-width-input" min="10" max="100" placeholder="%" title="너비(%)">
+                            <button onclick="applyImageWidth()">적용</button>
+                            <div class="divider"></div>
+                            <button onclick="deleteSelectedImage()" style="background:#7f1d1d">🗑 삭제</button>
+                        </div>
+                        <div id="handle-tl" class="img-resize-handle tl"></div>
+                        <div id="handle-tr" class="img-resize-handle tr"></div>
+                        <div id="handle-bl" class="img-resize-handle bl"></div>
+                        <div id="handle-br" class="img-resize-handle br"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-8 border-t bg-neutral-50 flex justify-end gap-6">
+                <button onclick="closeEditor()" class="px-10 py-5 font-black text-neutral-400 hover:text-black">편집 취소</button>
+                <button onclick="saveAndClose()" class="px-14 py-5 bg-red-600 text-white rounded-2xl font-black shadow-2xl shadow-red-100 hover:bg-red-700 transition-all">실시간 발행하기</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="account-modal" class="fixed inset-0 z-[1100] hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-8">
+        <div class="bg-white w-full max-w-2xl rounded-[3rem] shadow-3xl overflow-hidden flex flex-col">
+            <div class="p-8 border-b flex justify-between items-center">
+                <h3 class="font-black text-2xl tracking-tighter" id="account-modal-title">계정 추가</h3>
+                <button onclick="closeAccountModal()" class="p-3 hover:bg-neutral-100 rounded-full"><i data-lucide="x"></i></button>
+            </div>
+            <div class="p-10 space-y-6">
+                <input type="hidden" id="acc-orig-id">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="acc-id" placeholder="아이디" class="p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold">
+                    <input type="text" id="acc-name" placeholder="이름" class="p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold">
+                </div>
+                <input type="password" id="acc-pw" placeholder="비밀번호" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold">
+                <div>
+                    <label class="text-[10px] font-black text-neutral-400 uppercase block mb-3">권한 레벨</label>
+                    <select id="acc-role" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold">
+                        <option value="staff">일반 관리자 (Staff)</option>
+                        <option value="super">슈퍼 관리자 (Super)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-black text-neutral-400 uppercase block mb-3">기능별 접근 권한 (Staff 전용)</label>
+                    <div id="acc-permissions" class="grid grid-cols-2 gap-3"></div>
+                </div>
+            </div>
+            <div class="p-8 border-t bg-neutral-50 flex justify-end gap-4">
+                <button onclick="closeAccountModal()" class="px-8 py-4 font-black text-neutral-400">취소</button>
+                <button onclick="saveAccount()" class="px-12 py-4 bg-red-600 text-white rounded-2xl font-black hover:bg-red-700">저장하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script type="module" src="admin.js"></script>
+</body>
+</html>

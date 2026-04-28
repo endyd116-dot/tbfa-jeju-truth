@@ -1,0 +1,371 @@
+export const seedMilestones =[
+    {
+        id: "m_seed_1",
+        date: "2025-05-22",
+        status: "past",
+        title: "교내 사망 - 비극의 시작",
+        summary: "故 현승준 교사 교내에서 사망. 교육청은 형식적 분향소만 설치하고 실질적 행정 지원은 거부했습니다.",
+        content: "<h2>아이들을 사랑했던 선생님이 떠난 날</h2><p>2025년 5월 22일, 제주의 한 중학교에서 한 선생님이 숨진 채 발견되었습니다. 고인의 휴대전화에는 <strong>하루 최대 12차례에 이르는 악성 민원 기록</strong>이 남아있었습니다.</p><p>그러나 교육청은 표면적인 분향소 설치 외에는 어떠한 실질적 행정 지원도 제공하지 않았습니다. 유족은 <strong>스스로 고인의 휴대전화를 포렌식</strong>하여 증거를 확보해야 했습니다.</p><blockquote>국가가 보호해야 할 교사의 죽음 앞에, 행정은 침묵했습니다.</blockquote>",
+        image: "https://images.unsplash.com/photo-1588072432836-e10032774350?q=80&w=1200&auto=format&fit=crop",
+        imageAlign: "center",
+        imageWidth: 100,
+        file: "사건_경위_보고서_원본.pdf",
+        fileUrl: "#"
+    },
+    {
+        id: "m_seed_2",
+        date: "2025-12-04",
+        status: "past",
+        title: "기만의 '셀프 조사' 발표",
+        summary: "외부 전문가를 배제한 내부 진상조사 결과 발표. 학교 관리자에 '경징계' 권고로 사실상 면죄부.",
+        content: "<h2>외부 전문가 0명, 내부 인사로만 구성된 조사위</h2><p>교육청은 사망 7개월 만에 진상조사 결과를 발표했습니다. 그러나 조사위원 전원이 <strong>교육청 내부 인사</strong>로만 구성되었고, 병가 거절 및 허위 경위서 의혹에도 불구하고 학교 관리자에게 '경징계'만을 권고했습니다.</p><p>유족은 즉시 결과를 전면 거부하고 <strong>독립적 진상조사위원회 재구성</strong>을 강력히 촉구했습니다.</p>",
+        image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1200&auto=format&fit=crop",
+        imageAlign: "center",
+        imageWidth: 100,
+        file: "내부_진상조사_결과_분석.pdf",
+        fileUrl: "#"
+    },
+    {
+        id: "m_seed_3",
+        date: "2026-01-15",
+        status: "past",
+        title: "사학연금공단, 순직 인정",
+        summary: "외부 기관이 8개월 만에 순직을 인정. 그러나 교육청은 '환영' 논평만 낼 뿐 실질 지원 지연.",
+        content: "<h2>국가는 인정했습니다. 그러나 제주는 외면했습니다.</h2><p>2026년 1월, <strong>사학연금재단은 故 현승준 교사의 순직을 공식 인정</strong>했습니다. 사망 8개월 만의 결정이었습니다.</p><p>그러나 제주도교육청은 짧은 '환영' 논평만 발표했을 뿐, 구체적 지원책 실행은 지연시켰고 허위 경위서 묵인에 대한 사과도 하지 않았습니다.</p>",
+        image: "https://images.unsplash.com/photo-1591189824344-9b3464828f8e?q=80&w=1200&auto=format&fit=crop",
+        imageAlign: "center",
+        imageWidth: 90,
+        file: "순직_인정_결정서.pdf",
+        fileUrl: "#"
+    },
+    {
+        id: "m_seed_4",
+        date: "2026-04-24",
+        status: "past",
+        title: "유족 2차 기자회견",
+        summary: "부실 보고서 폐기, 교���청 법무팀 개입, '��주형 교원 안전망' 즉각 시행을 요구하는 대사회적 호소.",
+        content: "<h2>1년의 침묵, 끝나지 않은 싸움</h2><p>사건 발생 1년이 다 되어가는 시점, 유족은 2차 기자회견을 통해 <strong>제주도교육청의 조직적 방치와 2차 가해</strong>를 폭로했습니다.</p><h3>유족의 3대 요구사항</h3><ul><li><strong>부실 진상조사 보고서 즉각 폐기</strong> 및 외부 전문가 중심의 독립적 재조사</li><li><strong>교육청 법무팀의 직접 개입</strong>을 통한 책임자 처벌 및 고소 협조</li><li><strong>공·사립 차별 없는 '제주형 교원 안전망' 즉각 시행</strong></li></ul><blockquote>우리는 더 이상 누구의 자녀도, 누구의 동료도 이렇게 잃을 수 없습니다.</blockquote>",
+        image: "https://images.unsplash.com/photo-1585829365234-781fcd04c838?q=80&w=1200&auto=format&fit=crop",
+        imageAlign: "center",
+        imageWidth: 100,
+        file: "2차_기자회견_성명서_최종.pdf",
+        fileUrl: "#"
+    },
+    {
+        id: "m_seed_5",
+        date: "2026-04-27",
+        status: "current",
+        title: "현재 - 전국 연대 확산",
+        summary: "기자회견 이후 전국 교사 단체와 시민사회의 연대 폭발. 청와대 청원 및 SNS 확산 진행 중.",
+        content: "<h2>지금, 진실의 시계는 멈추지 않습니다</h2><p>2차 기자회견 이후 단 사흘만에 <strong>전국 교사 1만 5천 명의 연대 서명</strong>이 모였습니다. SNS에서는 #제주교사를위한진실 해시태그가 실시간 트렌드에 올랐습니다.</p><p>유족은 매일 도교육청 앞에서 침묵 시위를 이어가고 있으며, 다음 주에는 <strong>국회 교육위원회 청문회 개최</strong>를 추진 중입니다.</p>",
+        image: "https://images.unsplash.com/photo-1591189824344-9b3464828f8e?q=80&w=1200&auto=format&fit=crop",
+        imageAlign: "center",
+        imageWidth: 100,
+        file: "전국_연대_서명부.pdf",
+        fileUrl: "#"
+    },
+    {
+        id: "m_seed_6",
+        date: "2026-06-09",
+        status: "future",
+        title: "KBS 특집 다큐멘터리 방송",
+        summary: "공중파 KBS를 통해 1년간의 진실 추적기를 방송. 교육청 내부 문건 단독 공개 예정.",
+        content: "<h2>전국이 보게 될 진실</h2><p>2026년 6월 9일 밤 10시, <strong>KBS 시사기획 창</strong>에서 故 현승준 교사 사건의 1년을 다룬 특집 다큐멘터리가 방송됩니다.</p><p>3개월간의 밀착 취재를 통해 확보한 <strong>교육청 내부 문건과 녹취록</strong>이 단독 공개될 예정이며, 유족 인터뷰와 동료 교사들의 증언이 담깁니다.</p><blockquote>전국이 함께 보고, 함께 분노할 시간입니다.</blockquote>",
+        image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1200&auto=format&fit=crop",
+        imageAlign: "right",
+        imageWidth: 70,
+        file: "방송_편성표_및_보도자료.pdf",
+        fileUrl: "#"
+    }
+];
+
+export const seedSuspicions =[
+    {
+        id: "s_seed_1",
+        no: 1,
+        title: "허위 경위서 작성 및 국회 제출",
+        summary: "학교 관리자가 작성한 사건 경위서가 사실과 다르게 작성되어 국회에 제출된 정황.",
+        content: "<p>학교 관리자가 작성한 사건 경위서에는 <strong>고인의 병가 신청 사실 자체가 누락</strong>되어 있었습니다. 이 허위 경위서는 국회 교육위원회에까지 제출되었으며, 교육청은 이를 묵인했습니다.</p><p>유족은 이를 <strong>허위공문서작성죄</strong>로 형사 고소한 상태입니다.</p>",
+        image: "",
+        imageAlign: "center",
+        imageWidth: 100,
+        file: "",
+        fileUrl: ""
+    },
+    {
+        id: "s_seed_2",
+        no: 2,
+        title: "외부 전문가 배제된 '셀프 조사'",
+        summary: "진상조사위 100% 내부 인사 구성. 객관성과 독립성 결여.",
+        content: "<p>제주도교육청은 진상조사위를 <strong>전원 내부 인사로만 구성</strong>했습니다. 故 이민호 군 사건의 외부 전문가 60% 비율, 서이초 사건의 외부 자문단 운영과 극명한 차이를 보입니다.</p>",
+        image: "",
+        imageAlign: "center",
+        imageWidth: 100,
+        file: "",
+        fileUrl: ""
+    },
+    {
+        id: "s_seed_3",
+        no: 3,
+        title: "교육감의 2차 가해성 발언",
+        summary: "유족 면담 자리에서 \"마른 나무에 물 짜려 하면 안 된다\"는 발언으로 유족에게 2차 가해.",
+        content: "<p>유족 면담 자리에서 도교육감은 <strong>\"마른 나무에 물 짜려 하면 안 된다\"</strong>는 발언으로 사실상 추가 지원 불가를 통보했습니다. 이는 단순한 거절을 넘어 <strong>유족에 대한 명백한 2차 가해</strong>입니다.</p>",
+        image: "",
+        imageAlign: "center",
+        imageWidth: 100,
+        file: "",
+        fileUrl: ""
+    },
+    {
+        id: "s_seed_4",
+        no: 4,
+        title: "5개월간 지원금 0원의 행정 부작위",
+        summary: "사망 후 5개월간 교육청 차원의 직접 재정/심리 지원 전무.",
+        content: "<p>고인의 사망 이후 5개월간 제주도교육청이 유족에게 직접 지원한 금액은 <strong>0원</strong>이었습니다. 심리 상담 지원도 0회. 같은 기간 타 시도 교사 사망 사건에서는 즉각적인 장례 비용, 법률 비용, 자녀 심리치료비가 지원되었습니다.</p>",
+        image: "",
+        imageAlign: "center",
+        imageWidth: 100,
+        file: "",
+        fileUrl: ""
+    },
+    {
+        id: "s_seed_5",
+        no: 5,
+        title: "병가 거절의 진실",
+        summary: "사망 직전 우울증 진단서 첨부 병가 신청에 대한 학교의 거절 정황.",
+        content: "<p>사망 직전 고인은 <strong>우울증 진단서를 첨부한 병가</strong>를 신청한 것으로 확인되었습니다. 그러나 학교 측은 '학기 중 곤란'을 이유로 이를 거절했고, 이 사실은 공식 경위서에서 누락되었습니다.</p>",
+        image: "",
+        imageAlign: "center",
+        imageWidth: 100,
+        file: "",
+        fileUrl: ""
+    },
+    {
+        id: "s_seed_6",
+        no: 6,
+        title: "교육청 법무팀의 사건 외면",
+        summary: "유족이 사비로 법률 대응을 진행하는 동안 교육청 법무팀은 어떠한 협조도 거부.",
+        content: "<p>타 공무원 직군은 <strong>대한법률구조공단을 통한 무료 법률 지원</strong>을 받습니다. 그러나 故 현승준 교사 유족은 모든 법률 비용을 사비로 부담하고 있으며, 교육청 법무팀은 협조를 거부했습니다.</p>",
+        image: "",
+        imageAlign: "center",
+        imageWidth: 100,
+        file: "",
+        fileUrl: ""
+    }
+];
+
+export const seedTimeline =[
+    {
+        id: "t_seed_1",
+        date: "2025-05-22",
+        title: "비극의 발생과 멈춘 행정",
+        edu: "표면적 분향소 설치에 그치며, 유족의 실질적 지원 요구에는 \"관련 규정이 없다\"는 명분으로 방관.",
+        family: "장례 직후 유족이 직접 고인의 휴대전화를 포렌식하여 하루 최대 12차례의 악성 민원 증거를 스스로 확보.",
+        evidence: "포렌식_악성민원_증거자료집.pdf",
+        content: "<h3>국가가 외면한 죽음, 가족이 손에 쥔 진실</h3><p>고인이 발견된 그날, 학교는 \"개인 사정\"을 강조하며 외부 접촉을 차단했습니다. 교육청 또한 형식적인 분향소 설치 외 어떠한 행정 지원도 거부했습니다.</p><p><strong>유족은 절망 속에서 직접 고인의 휴대전화를 분석</strong>했고, 그 안에서 하루 최대 12차례에 이르는 악성 민원 기록을 발견했습니다. 진실의 첫 단서는 국가가 아닌 가족의 손에서 시작되었습니다.</p>",
+        image: "https://images.unsplash.com/photo-1588072432836-e10032774350?q=80&w=1200&auto=format&fit=crop",
+        imageAlign: "center",
+        imageWidth: 100,
+        fileUrl: "#"
+    },
+    {
+        id: "t_seed_2",
+        date: "2025-10-15",
+        title: "0원의 지원, 그리고 2차 가해",
+        edu: "사망 5개월 경과. 직접 지원금 0원, 심리치료 0회. 교육감 면담 시 \"마른 나무에 물 짜려 하면 안 된다\" 발언.",
+        family: "교육청의 지원 전무 실태를 외부에 최초 폭로. 1인 시위 및 언론 인터뷰 본격화.",
+        evidence: "교육감_면담_녹취록.mp3",
+        content: "<h3>지원금 0원, 그리고 한 마디의 폭력</h3><p>사망 후 5개월이 지났지만 제주도교육청의 직접 지원액은 <strong>여전히 0원</strong>이었습니다. 심리 상담 지원도 0회.</p><p>유족이 교육감과 직접 면담한 자리에서 들은 말은 더욱 충격적이었습니다.</p><blockquote>\"마른 나무에 물 짜려 하면 안 된다\"</blockquote><p>이 발언은 단순한 거절을 넘어 명백한 <strong>2차 가해</strong>였습니다. 유족은 더 ���상 침묵할 수 없었���니다.</p>",
+        image: "",
+        imageAlign: "center",
+        imageWidth: 100,
+        fileUrl: "#"
+    },
+    {
+        id: "t_seed_3",
+        date: "2025-12-04",
+        title: "기만적인 '셀프 조사' 결과 발표",
+        edu: "외부 전문가를 철저히 배제한 내부 진상조사 결과 발표. 학교 관리자에 '경징계' 요구로 면죄부 부여.",
+        family: "진상조사 결과 전면 거부. 독립적 진상조사위원회 재구성 강력 촉구. 시민단체 연대 시작.",
+        evidence: "내부진상조사_부실분석_보고서.pdf",
+        content: "<h3>면죄부를 위한 조사, 진실을 위한 조사가 아니었습니다</h3><p>교육청이 발표한 진상조사 결과는 <strong>외부 전문가가 단 한 명도 포함되지 않은</strong> 내부 인사들만의 결론이었습니다.</p><p>병가 거절 의혹, 허위 경위서 작성 의혹이 명백함에도 불구하고 학교 관리자에게는 <strong>'경징계' 권고</strong>만이 내려졌습니다. 사실상의 면죄부였습니다.</p><p>유족은 결과를 전면 거부하고, 시민단체와 연대하여 <strong>독립적 진상조사위원회 재구성</strong>을 강력히 촉구하기 시작했습니다.</p>",
+        image: "",
+        imageAlign: "center",
+        imageWidth: 100,
+        fileUrl: "#"
+    },
+    {
+        id: "t_seed_4",
+        date: "2026-01-15",
+        title: "스스로 증명한 '순직', 사법 투쟁의 시작",
+        edu: "외부 기관(사학연금재단)에 의해 8개월 만에 순직 인정. 교육청은 '환영' 논평만 발표할 뿐 후속 조치 지연.",
+        family: "1월 감사원 공익감사 청구 접수. 유족 사비로 법률 대응 시작.",
+        evidence: "감사원_공익감사청구서.pdf",
+        content: "<h3>국가는 인정했지만, 제주는 침묵했습니다</h3><p>2026년 1월, <strong>사학연금재단이 故 현승준 교사의 순직을 공식 인정</strong>했습니다. 사망 후 8개월 만의 일이었습니다.</p><p>그러나 제주도교육청은 단 한 줄의 '환영' 논평만 발표했을 뿐, 구체적인 후속 지원 조치는 여전히 지연시켰습니다.</p><p>유족은 더 이상 행정에 기댈 수 없다고 판단하고 <strong>감사원 공익감사를 청구</strong>했습니다. 모든 법률 비용은 유족 사비로 부담되었습니다.</p>",
+        image: "",
+        imageAlign: "center",
+        imageWidth: 100,
+        fileUrl: "#"
+    },
+    {
+        id: "t_seed_5",
+        date: "2026-02-20",
+        title: "직무유기 형사 고소",
+        edu: "고소 사실에 대한 어떠한 입장도 발표하지 않음. 협조 거부 지속.",
+        family: "직무유기 및 허위공문서 작성 혐의로 학교 관리자 직접 형사 고소. 유족 사비로 법률 대응.",
+        evidence: "형사고소장_원본.pdf",
+        content: "<h3>마지막 수단, 형사 고소</h3><p>2월, 유족은 결국 <strong>학교 관리자를 직무유기 및 허위공문서 작성 혐의로 직접 형사 고소</strong>했습니다.</p><p>고소장에는 병가 거절의 정황, 누락된 경위서, 묵인된 악성 민원 등 <strong>1년간 유족이 직접 수집한 모든 증거</strong>가 첨부되었습니다.</p><p>교육청 법무팀은 어떠한 협조도 하지 않았고, 모든 법률 비용은 여전히 유족의 몫이었습니다.</p>",
+        image: "",
+        imageAlign: "center",
+        imageWidth: 100,
+        fileUrl: "#"
+    },
+    {
+        id: "t_seed_6",
+        date: "2026-04-24",
+        title: "끝나지 않은 싸움, 2차 기자회견",
+        edu: "기자회견 당일 '재조사 검토 중'이라는 모호한 입장만 발표. 구체적 일정/방법 제시 없음.",
+        family: "전국 교사 단체 연대 서명을 받아 2차 기자회견 진행. 부실 보고서 폐기, 법무팀 개입, 제주형 교원 안전망 즉각 시행 요구.",
+        evidence: "2차_기자회견_영상_및_성명서.mp4",
+        content: "<h3>1년의 침묵을 깨고, 진실을 외칩니다</h3><p>사건 발생 1년이 다 되어가는 시점, 유족은 <strong>2차 기자회견</strong>을 통해 1년간의 방치와 2차 가해를 모두 폭로했습니다.</p><h4>유족의 3대 요구</h4><ol><li>부실 진상조사 보고서 <strong>즉각 폐기</strong></li><li>교육청 법무팀의 <strong>직접 개입</strong></li><li>공·사립 차별 없는 <strong>'제주형 교원 안전망' 즉각 시행</strong></li></ol><p>전국 교사 단체와 시민사회의 연대가 폭발적으로 확산되고 있습니다.</p>",
+        image: "https://images.unsplash.com/photo-1585829365234-781fcd04c838?q=80&w=1200&auto=format&fit=crop",
+        imageAlign: "center",
+        imageWidth: 100,
+        fileUrl: "#"
+    }
+];
+
+export const seedComparisons =[
+    {
+        id: "c_seed_1",
+        subject: "초기 지원 금액",
+        category: "타 공무원 직군 비교 (경찰/소방/군인)",
+        jejuVal: 0,
+        jejuUnit: "원",
+        jejuLabel: "제주 故 현승준 교사 유족",
+        jejuDetail: "사망 후 5개월간 교육청 차원 직접 재정 지원 전무. 장례비, 법률비 모두 유족 사비 부담.",
+        otherVal: 34260,
+        otherUnit: "만원",
+        otherLabel: "타 공무원 직군 (경찰/소방)",
+        otherDetail: "위험직무 순직 시 유족 보상금 특례 적용. 기준소득월액 60배 (약 3억 4,260만원) 즉시 지급.",
+        content: "<h3>3억 4,260만원 vs 0원</h3><p>경찰공무원법 및 소방공무원법은 위험직무 순직 시 <strong>기준소득월액 60배(약 3억 4,260만원)</strong>를 즉시 지급하도록 명시하고 있습니다.</p><p>그러나 故 현승준 교사 유족은 <strong>5개월간 단 한 푼의 지원도 받지 못했습니다</strong>. 장례 비용, 법률 비용, 모든 것이 유족�� 사비로 충당되었습니다.</p><p>같은 국가공무원의 죽음에 이렇게 다른 잣대가 적용될 수 있습니까?</p>",
+        image: "",
+        imageAlign: "center",
+        imageWidth: 100,
+        fileUrl: ""
+    },
+    {
+        id: "c_seed_2",
+        subject: "심리 치료 및 전담 지원",
+        category: "타 공무원 직군 비교 (경찰/소방/군인)",
+        jejuVal: 0,
+        jejuUnit: "회",
+        jejuLabel: "제주 교사 유족",
+        jejuDetail: "1년간 교육청 차원의 심리 상담 지원 0회. 적기 지원 완전 방치.",
+        otherVal: 365,
+        otherUnit: "일",
+        otherLabel: "보훈부 1577-0606",
+        otherDetail: "국가보훈부 보훈상담센터 전문 상담사 10여 명 365일 상시 무제한 지원.",
+        content: "<h3>365일 상시 지원 vs 1년간 0회</h3><p>국가보훈부는 순직 공무원 유족을 위해 <strong>1577-0606 보훈상담센터를 365일 상시 운영</strong>합니다. 전문 상담사 10여 명이 무제한으로 심리 지원을 제공합니다.</p><p>제주 교사 유족이 1년간 받은 심리 상담은? <strong>0회입니다</strong>.</p>",
+        image: "",
+        imageAlign: "center",
+        imageWidth: 100,
+        fileUrl: ""
+    },
+    {
+        id: "c_seed_3",
+        subject: "진상조사 외부 전문가 비율",
+        category: "도내 학생 사망 사건 비교 (故 이민호 군)",
+        jejuVal: 0,
+        jejuUnit: "%",
+        jejuLabel: "제주 교사 사건 조사위",
+        jejuDetail: "교육청 내부 인사 100% 구성. 시민단체, 외부 전문가, 유족 추천 위원 전원 배제.",
+        otherVal: 100,
+        otherUnit: "%",
+        otherLabel: "故 이민호 군 사건 조사위",
+        otherDetail: "시민단체 및 외부 노무사 참여 '공동 진상조사위원회' 가동. 100% 개방 운영.",
+        content: "<h3>100% 폐쇄 vs 100% 개방</h3><p>2017년 故 이민호 군 사건 당시, 도교육청은 <strong>시민단체와 외부 노무사가 참여하는 '공동 진상조사위원회'를 100% 개방형으로 운영</strong>했습니다.</p><p>그러나 故 현승준 교사 사건의 진상조사위는 <strong>교육청 내부 인사로만 100% 폐쇄적으로 구성</strong>되었습니다. 같은 도교육청, 같은 죽음 앞에 이렇게 다른 기준이 작동했습니다.</p>",
+        image: "",
+        imageAlign: "center",
+        imageWidth: 100,
+        fileUrl: ""
+    },
+    {
+        id: "c_seed_4",
+        subject: "법률 지원 체계",
+        category: "타 시도 교사 비교 (서이초/상명대부설초)",
+        jejuVal: 0,
+        jejuUnit: "원",
+        jejuLabel: "제주 교사 유족",
+        jejuDetail: "교육청 법무팀 협조 거부. 유족이 모든 법률 비용 사비로 부담.",
+        otherVal: 100,
+        otherUnit: "%",
+        otherLabel: "타 시도 교사 사건",
+        otherDetail: "서이초 사건: 장례 비용 지원. 상명대부설초 사건: 법률 재조사 비용 전액 지원.",
+        content: "<h3>전액 지원 vs 사비 부담</h3><p>서울 서이초, 상명대부설초 등 타 시도 교사 사망 사건에서는 <strong>장례 비용과 법률 비용이 전액 교육청 예산으로 지원</strong>되었습니다.</p><p>그러나 제주도교육청은 법무팀의 협조마저 거부했습니다. 故 현승준 교사 유족은 형사 고소장 작성부터 변호사 비용까지 <strong>모든 법률 비용을 사비로 부담</strong>하고 있습니다.</p>",
+        image: "",
+        imageAlign: "center",
+        imageWidth: 100,
+        fileUrl: ""
+    },
+    {
+        id: "c_seed_5",
+        subject: "행정기관의 적극적 개입",
+        category: "도내 기업 사망 비교 (쿠팡 故 오승용 씨)",
+        jejuVal: 0,
+        jejuUnit: "건",
+        jejuLabel: "제주도교육청 적극 개입",
+        jejuDetail: "1년간 교육감 공식 사과 0회, 유족 면담 후속 조치 0건. 행정 방치.",
+        otherVal: 24,
+        otherUnit: "개월",
+        otherLabel: "제주도청 쿠팡 사건 대응",
+        otherDetail: "긴급복지 생계지원금 즉시 투입. 중장기 복지 서비스 24개월 연계 및 전담 공무원 배정.",
+        content: "<h3>민간 노동자에게도 24개월, 교사에게는 0개월</h3><p>2024년 제주 쿠팡 노동자 故 오승용 씨 사망 사건 당시, 제주도청은 <strong>긴급복지 생계지원금을 즉시 투입</strong>하고 <strong>전담 공무원을 배정해 24개월간 중장기 복지 서비스</strong>를 연계했습니다.</p><p>그러나 같은 제주도의 도교육청은 교사 유족에게 <strong>1년간 단 한 차례의 후속 조치도 취하지 않았습니다</strong>. 민간 노동자보다도 못한 대우를 받는 교사의 죽음, 이것이 제주의 현실입니다.</p>",
+        image: "",
+        imageAlign: "center",
+        imageWidth: 100,
+        fileUrl: ""
+    },
+    {
+        id: "c_seed_6",
+        subject: "제도적 예우 (사과/추모)",
+        category: "타 시도 교사 비교 (서이초)",
+        jejuVal: 0,
+        jejuUnit: "회",
+        jejuLabel: "제주 교육감 공식 사과",
+        jejuDetail: "1년간 공식 사과 0회. 면담 자리에서 \"마른 나무에 물 짜려 하면 안 된다\" 등 2차 가해 발언.",
+        otherVal: 4,
+        otherUnit: "회",
+        otherLabel: "서울 교육감 대응",
+        otherDetail: "사건 직후 즉각 공식 사과 + 유족 면담 3회 + 교권보호 4법 개정 주도.",
+        content: "<h3>4회의 사과 vs 0회의 사과 + 2차 가해</h3><p>2023년 서이초 사건 당시 서울시 교육감은 <strong>즉각적 공식 사과 후 유족 직접 면담을 3회 진행</strong>했고, 교권보호 4법 개정을 직접 주도했습니다.</p><p>제주 교육감은 1년간 <strong>공식 사과 0회</strong>. 오히려 면담 자리에서 \"마른 나무에 물 짜려 하면 안 된다\"는 ��언으로 유족에게 <strong>2차 가해</strong>를 가했습니다.</p>",
+        image: "",
+        imageAlign: "center",
+        imageWidth: 100,
+        fileUrl: ""
+    }
+];
+
+export const seedContentManagement =[
+    {
+        id: "cm_seed_1",
+        type: "emergency",
+        title: "긴급 - 사망 1년 경과, 교육청 지원 0원 / 심리치료 0회 / 공식 사과 0회",
+        content: "",
+        isActive: true
+    },
+    {
+        id: "cm_seed_2",
+        type: "cta",
+        title: "진실을 위한 연대에 함께해주세요",
+        content: "<p>전국 교사 1만 5천명, 시민 5만명이 이미 함께하고 있습니다.</p><div class=\"flex flex-wrap gap-4 justify-center mt-6\"><button class=\"px-10 py-5 bg-white text-red-600 rounded-2xl font-black hover:bg-neutral-100 transition-all\">연대 서명하기</button><button class=\"px-10 py-5 bg-black text-white rounded-2xl font-black hover:bg-neutral-900 transition-all\">SNS 공유하기</button></div>",
+        isActive: true
+    },
+    {
+        id: "cm_seed_3",
+        type: "footer",
+        title: "제주 교사 유가족 협의회",
+        content: "<p>고인의 명예 회복과 교육 현장의 진실을 위해 끝까지 싸우���습니다.</p>",
+        isActive: true
+    }
+];

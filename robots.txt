@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Allow: /index.html
+
+# 관리자 페이지 검색 노출 차단
+Disallow: /admin
+Disallow: /admin.html
