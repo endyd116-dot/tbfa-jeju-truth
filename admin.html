@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>관리 시스템 - 제주 교사 유가족 협의회</title>
     <meta name="robots" content="noindex, nofollow">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,8 +14,8 @@
         .sidebar-link.active { background: #dc2626; color: white; }
         .permission-badge { font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; }
         #admin-panel { display: none; }
-        #editor-container { min-height: 320px; background: white; }
-        .ql-editor { min-height: 280px; font-size: 15px; position: relative; }
+        #editor-container { min-height: 280px; background: white; }
+        .ql-editor { min-height: 240px; font-size: 15px; position: relative; }
         .ql-editor img { cursor: pointer; max-width: 100%; }
         .ql-editor img.img-selected {
             outline: 3px solid #dc2626;
@@ -31,6 +32,8 @@
             z-index: 1000;
             box-shadow: 0 8px 24px rgba(0,0,0,0.4);
             transform: translate(-50%, -110%);
+            flex-wrap: wrap;
+            max-width: 90vw;
         }
         #img-floating-toolbar.active { display: flex; }
         #img-floating-toolbar button {
@@ -84,90 +87,161 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
+
+        /* ===== 모바일 반응형 ===== */
+        #sidebar {
+            transition: transform 0.3s ease;
+        }
+        #sidebar-backdrop {
+            display: none;
+        }
+        #sidebar-backdrop.active {
+            display: block;
+        }
+
+        @media (max-width: 1023px) {
+            #sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            #sidebar.active {
+                transform: translateX(0);
+            }
+            body.sidebar-open {
+                overflow: hidden;
+            }
+        }
+
+        /* 모바일 테이블 가로 스크롤 */
+        .table-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Quill 에디터 모바일 최적화 */
+        @media (max-width: 767px) {
+            .ql-toolbar.ql-snow {
+                padding: 6px !important;
+            }
+            .ql-toolbar.ql-snow .ql-formats {
+                margin-right: 8px !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-neutral-50 text-neutral-900 font-sans">
-    <div id="login-screen" class="fixed inset-0 bg-neutral-950 z-[2000] flex items-center justify-center">
-        <div class="bg-white p-12 rounded-[2.5rem] shadow-2xl w-full max-w-md">
-            <div class="flex justify-center mb-10">
-                <div class="w-16 h-16 bg-red-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-red-600/30">
-                    <i data-lucide="shield-check" class="text-white w-8 h-8"></i>
+
+    <!-- 로그인 화면 -->
+    <div id="login-screen" class="fixed inset-0 bg-neutral-950 z-[2000] flex items-center justify-center p-4">
+        <div class="bg-white p-8 md:p-12 rounded-3xl md:rounded-[2.5rem] shadow-2xl w-full max-w-md">
+            <div class="flex justify-center mb-8 md:mb-10">
+                <div class="w-14 h-14 md:w-16 md:h-16 bg-red-600 rounded-2xl md:rounded-3xl flex items-center justify-center shadow-2xl shadow-red-600/30">
+                    <i data-lucide="shield-check" class="text-white w-7 h-7 md:w-8 md:h-8"></i>
                 </div>
             </div>
-            <h1 class="text-3xl font-black mb-2 text-center tracking-tighter">TRUTH ADMIN</h1>
-            <p class="text-center text-neutral-400 text-sm mb-10">협의회 공용 관리 시스템 인증</p>
-            <div class="space-y-4">
-                <input type="text" id="admin-id" placeholder="ID" class="w-full p-5 bg-neutral-50 border border-neutral-200 rounded-2xl focus:ring-2 ring-red-600 outline-none font-bold" autocomplete="username">
-                <input type="password" id="admin-pw" placeholder="Password" class="w-full p-5 bg-neutral-50 border border-neutral-200 rounded-2xl focus:ring-2 ring-red-600 outline-none font-bold" autocomplete="current-password">
-                <button onclick="handleLogin()" class="w-full bg-red-600 text-white py-5 rounded-2xl font-black text-lg hover:bg-red-700 transition-all shadow-2xl shadow-red-200 mt-4">접속하기</button>
-                <p class="text-center text-xs text-neutral-400 mt-4">⚠️ 최초 배포 후 기본 비밀번호를 즉시 변경하세요</p>
+            <h1 class="text-2xl md:text-3xl font-black mb-2 text-center tracking-tighter">TRUTH ADMIN</h1>
+            <p class="text-center text-neutral-400 text-xs md:text-sm mb-8 md:mb-10">협의회 공용 관리 시스템 인증</p>
+            <div class="space-y-3 md:space-y-4">
+                <input type="text" id="admin-id" placeholder="ID" class="w-full p-4 md:p-5 bg-neutral-50 border border-neutral-200 rounded-2xl focus:ring-2 ring-red-600 outline-none font-bold" autocomplete="username">
+                <input type="password" id="admin-pw" placeholder="Password" class="w-full p-4 md:p-5 bg-neutral-50 border border-neutral-200 rounded-2xl focus:ring-2 ring-red-600 outline-none font-bold" autocomplete="current-password">
+                <button onclick="handleLogin()" class="w-full bg-red-600 text-white py-4 md:py-5 rounded-2xl font-black text-base md:text-lg hover:bg-red-700 transition-all shadow-2xl shadow-red-200 mt-3 md:mt-4">접속하기</button>
+                <p class="text-center text-[11px] md:text-xs text-neutral-400 mt-3 md:mt-4">⚠️ 최초 배포 후 기본 비밀번호를 즉시 변경하세요</p>
             </div>
         </div>
     </div>
 
-    <div id="admin-panel" class="flex min-h-screen">
-        <aside class="w-80 bg-neutral-900 text-white p-8 flex flex-col fixed h-full z-10">
-            <div class="mb-14 flex items-center gap-4">
-                <div class="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center">
-                    <i data-lucide="activity" class="w-7 h-7 text-white"></i>
+    <!-- 관리자 패널 -->
+    <div id="admin-panel" class="min-h-screen">
+
+        <!-- 모바일 상단 바 (lg 이하에서만 표시) -->
+        <header class="lg:hidden fixed top-0 left-0 right-0 z-40 bg-neutral-900 text-white px-4 py-3 flex items-center justify-between shadow-lg">
+            <button onclick="toggleSidebar()" class="p-2 hover:bg-white/10 rounded-lg" aria-label="메뉴 열기">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
+                    <i data-lucide="activity" class="w-4 h-4 text-white"></i>
                 </div>
-                <div>
-                    <span class="font-black text-2xl tracking-tighter block leading-none">TRUTH</span>
-                    <span class="text-red-500 text-[10px] font-bold uppercase tracking-[0.3em]">Management</span>
-                </div>
+                <span class="font-black text-base tracking-tighter">TRUTH</span>
             </div>
-            <nav class="flex-1 space-y-2 overflow-y-auto" id="admin-nav"></nav>
-            <div class="pt-8 border-t border-white/10">
-                <div class="flex items-center gap-4 mb-6">
-                    <div id="user-avatar" class="w-12 h-12 rounded-2xl bg-white/10 text-white flex items-center justify-center font-black text-xl">A</div>
+            <a href="index.html" target="_blank" class="p-2 hover:bg-white/10 rounded-lg" aria-label="외부 페이지">
+                <i data-lucide="external-link" class="w-5 h-5 text-red-500"></i>
+            </a>
+        </header>
+
+        <!-- 사이드바 백드롭 (모바일 사이드바 열릴 때) -->
+        <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"></div>
+
+        <!-- 사이드바 -->
+        <aside id="sidebar" class="w-72 lg:w-80 bg-neutral-900 text-white p-6 lg:p-8 flex flex-col fixed h-full z-50 overflow-y-auto">
+            <div class="mb-10 lg:mb-14 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3 lg:gap-4">
+                    <div class="w-10 h-10 lg:w-12 lg:h-12 bg-red-600 rounded-2xl flex items-center justify-center">
+                        <i data-lucide="activity" class="w-5 h-5 lg:w-7 lg:h-7 text-white"></i>
+                    </div>
                     <div>
-                        <div class="text-sm font-black" id="current-user-name">Loading...</div>
+                        <span class="font-black text-xl lg:text-2xl tracking-tighter block leading-none">TRUTH</span>
+                        <span class="text-red-500 text-[10px] font-bold uppercase tracking-[0.3em]">Management</span>
+                    </div>
+                </div>
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 hover:bg-white/10 rounded-lg" aria-label="메뉴 닫기">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <nav class="flex-1 space-y-2" id="admin-nav"></nav>
+            <div class="pt-6 lg:pt-8 border-t border-white/10">
+                <div class="flex items-center gap-3 lg:gap-4 mb-4 lg:mb-6">
+                    <div id="user-avatar" class="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-white/10 text-white flex items-center justify-center font-black text-lg lg:text-xl">A</div>
+                    <div class="min-w-0 flex-1">
+                        <div class="text-sm font-black truncate" id="current-user-name">Loading...</div>
                         <div class="text-[10px] text-red-500 uppercase font-black tracking-widest" id="current-user-role">Super Admin</div>
                     </div>
                 </div>
-                <button onclick="handleLogout()" class="w-full py-4 text-xs font-black bg-white/5 hover:bg-red-600/20 hover:text-red-500 rounded-xl transition-all">로그아웃</button>
+                <button onclick="handleLogout()" class="w-full py-3 lg:py-4 text-xs font-black bg-white/5 hover:bg-red-600/20 hover:text-red-500 rounded-xl transition-all">로그아웃</button>
             </div>
         </aside>
 
-        <main class="flex-1 ml-80 p-16 bg-neutral-50">
-            <header class="flex justify-between items-center mb-16">
-                <div>
-                    <h2 class="text-5xl font-black tracking-tighter mb-2" id="view-title">Dashboard</h2>
-                    <p class="text-neutral-400 font-medium" id="view-desc">시스템 현황 및 관리 지표</p>
+        <!-- 메인 영역 -->
+        <main class="lg:ml-80 p-4 md:p-8 lg:p-16 bg-neutral-50 min-h-screen pt-20 lg:pt-16">
+            <header class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 md:mb-12 lg:mb-16 gap-4">
+                <div class="min-w-0">
+                    <h2 class="text-2xl md:text-4xl lg:text-5xl font-black tracking-tighter mb-1 lg:mb-2 break-keep" id="view-title">Dashboard</h2>
+                    <p class="text-neutral-400 font-medium text-sm lg:text-base" id="view-desc">시스템 현황 및 관리 지표</p>
                 </div>
-                <div class="flex gap-4">
-                    <a href="index.html" target="_blank" class="px-8 py-4 border-2 border-neutral-200 bg-white rounded-2xl text-sm font-black hover:bg-neutral-50 transition-all flex items-center gap-3">
+                <div class="flex gap-3 lg:gap-4">
+                    <a href="index.html" target="_blank" class="hidden md:flex px-6 lg:px-8 py-3 lg:py-4 border-2 border-neutral-200 bg-white rounded-2xl text-xs lg:text-sm font-black hover:bg-neutral-50 transition-all items-center gap-2 lg:gap-3">
                         <i data-lucide="external-link" class="w-4 h-4 text-red-600"></i> 외부 폭로 페이지
                     </a>
                 </div>
             </header>
 
-            <div id="admin-content" class="min-h-[600px]"></div>
+            <div id="admin-content" class="min-h-[400px]"></div>
         </main>
     </div>
 
-    <div id="editor-modal" class="fixed inset-0 z-[1100] hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-8">
-        <div class="bg-white w-full max-w-6xl rounded-[3rem] shadow-3xl overflow-hidden flex flex-col max-h-[92vh]">
-            <div class="p-8 border-b flex justify-between items-center bg-white">
-                <h3 class="font-black text-2xl tracking-tighter" id="modal-title">콘텐츠 편집</h3>
-                <button onclick="closeEditor()" class="p-3 hover:bg-neutral-100 rounded-full transition-colors"><i data-lucide="x"></i></button>
+    <!-- 콘텐츠 편집 모달 -->
+    <div id="editor-modal" class="fixed inset-0 z-[1100] hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-2 md:p-8">
+        <div class="bg-white w-full max-w-6xl rounded-2xl md:rounded-[3rem] shadow-3xl overflow-hidden flex flex-col max-h-[96vh] md:max-h-[92vh]">
+            <div class="p-4 md:p-8 border-b flex justify-between items-center bg-white">
+                <h3 class="font-black text-lg md:text-2xl tracking-tighter truncate" id="modal-title">콘텐츠 편집</h3>
+                <button onclick="closeEditor()" class="p-2 md:p-3 hover:bg-neutral-100 rounded-full transition-colors flex-shrink-0"><i data-lucide="x"></i></button>
             </div>
-            <div class="flex-1 overflow-y-auto p-12 space-y-8">
-                <div id="dynamic-fields" class="grid grid-cols-2 gap-8"></div>
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12 space-y-6 md:space-y-8">
+                <div id="dynamic-fields" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8"></div>
 
-                <div class="space-y-4">
+                <div class="space-y-3 md:space-y-4">
                     <label class="text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em]">대표 이미지 / 첨부 미디어</label>
-                    <div class="flex gap-4">
-                        <input type="text" id="edit-image" placeholder="이미지 URL을 입력하세요 (예: https://...)" class="flex-1 p-5 bg-neutral-50 border border-neutral-100 rounded-2xl text-sm font-bold">
-                        <label class="px-8 bg-neutral-900 text-white rounded-2xl text-xs font-black flex items-center cursor-pointer">
+                    <div class="flex flex-col sm:flex-row gap-3 md:gap-4">
+                        <input type="text" id="edit-image" placeholder="이미지 URL을 입력하세요" class="flex-1 p-3 md:p-5 bg-neutral-50 border border-neutral-100 rounded-2xl text-sm font-bold">
+                        <label class="px-6 md:px-8 py-3 md:py-0 bg-neutral-900 text-white rounded-2xl text-xs font-black flex items-center justify-center cursor-pointer">
                             파일 업로드
                             <input type="file" id="edit-image-file" class="hidden" accept="image/*" onchange="handleImageUpload(event)">
                         </label>
                     </div>
-                    <div class="grid grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
                         <div>
                             <label class="text-[10px] font-black text-neutral-400 uppercase block mb-2">배치 방법</label>
-                            <select id="edit-image-align" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl text-xs font-bold">
+                            <select id="edit-image-align" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl text-xs font-bold">
                                 <option value="left">좌측 정렬</option>
                                 <option value="center" selected>중앙 정렬</option>
                                 <option value="right">우측 정렬</option>
@@ -175,7 +249,7 @@
                         </div>
                         <div>
                             <label class="text-[10px] font-black text-neutral-400 uppercase block mb-2">크기 (너비 %)</label>
-                            <input type="number" id="edit-image-width" min="20" max="100" value="100" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl text-xs font-bold">
+                            <input type="number" id="edit-image-width" min="20" max="100" value="100" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl text-xs font-bold">
                         </div>
                         <div>
                             <label class="text-[10px] font-black text-neutral-400 uppercase block mb-2">미리보기</label>
@@ -184,18 +258,18 @@
                     </div>
                 </div>
 
-                <div class="space-y-4">
+                <div class="space-y-3 md:space-y-4">
                     <label class="text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em]">첨부 파일</label>
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="text" id="edit-file" placeholder="파일명 (예: 보고서.pdf)" class="p-5 bg-neutral-50 border border-neutral-100 rounded-2xl text-sm font-bold">
-                        <input type="text" id="edit-file-url" placeholder="다운로드 URL" class="p-5 bg-neutral-50 border border-neutral-100 rounded-2xl text-sm font-bold">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                        <input type="text" id="edit-file" placeholder="파일명 (예: 보고서.pdf)" class="p-3 md:p-5 bg-neutral-50 border border-neutral-100 rounded-2xl text-sm font-bold">
+                        <input type="text" id="edit-file-url" placeholder="다운로드 URL" class="p-3 md:p-5 bg-neutral-50 border border-neutral-100 rounded-2xl text-sm font-bold">
                     </div>
                 </div>
 
-                <div class="space-y-4">
-                    <label class="text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em]">본문 내용 (이미지 클릭 → 크기/정렬 제어)</label>
-                    <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 text-xs text-blue-700 font-bold">
-                        💡 사용법: 툴바에서 <span class="bg-white px-2 py-1 rounded">🖼️ 이미지</span>(파일 업로드) 또는 <span class="bg-white px-2 py-1 rounded">🔗 URL</span>(URL 삽입) 클릭 → 본문에 삽입된 이미지를 <strong>한번 클릭</strong>하면 크기 조절 핸들과 정렬 컨트롤이 표시됩니다.
+                <div class="space-y-3 md:space-y-4">
+                    <label class="text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em]">본문 내용</label>
+                    <div class="bg-blue-50 border border-blue-100 rounded-2xl p-3 md:p-4 text-[11px] md:text-xs text-blue-700 font-bold leading-relaxed">
+                        💡 툴바의 🖼️ 아이콘(파일 업로드) 또는 🔗 (URL 삽입) 클릭 → 삽입된 이미지를 <strong>한번 클릭</strong>하면 크기 조절이 가능합니다.
                     </div>
                     <div id="editor-wrap" class="relative bg-neutral-50 rounded-2xl border border-neutral-100">
                         <div id="editor-container"></div>
@@ -216,46 +290,57 @@
                     </div>
                 </div>
             </div>
-            <div class="p-8 border-t bg-neutral-50 flex justify-end gap-6">
-                <button onclick="closeEditor()" class="px-10 py-5 font-black text-neutral-400 hover:text-black">편집 취소</button>
-                <button onclick="saveAndClose()" class="px-14 py-5 bg-red-600 text-white rounded-2xl font-black shadow-2xl shadow-red-100 hover:bg-red-700 transition-all">실시간 발행하기</button>
+            <div class="p-4 md:p-8 border-t bg-neutral-50 flex flex-col sm:flex-row justify-end gap-3 md:gap-6">
+                <button onclick="closeEditor()" class="px-6 md:px-10 py-3 md:py-5 font-black text-neutral-400 hover:text-black order-2 sm:order-1">편집 취소</button>
+                <button onclick="saveAndClose()" class="px-8 md:px-14 py-3 md:py-5 bg-red-600 text-white rounded-2xl font-black shadow-2xl shadow-red-100 hover:bg-red-700 transition-all order-1 sm:order-2">실시간 발행하기</button>
             </div>
         </div>
     </div>
 
-    <div id="account-modal" class="fixed inset-0 z-[1100] hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-8">
-        <div class="bg-white w-full max-w-2xl rounded-[3rem] shadow-3xl overflow-hidden flex flex-col">
-            <div class="p-8 border-b flex justify-between items-center">
-                <h3 class="font-black text-2xl tracking-tighter" id="account-modal-title">계정 추가</h3>
-                <button onclick="closeAccountModal()" class="p-3 hover:bg-neutral-100 rounded-full"><i data-lucide="x"></i></button>
+    <!-- 계정 관리 모달 -->
+    <div id="account-modal" class="fixed inset-0 z-[1100] hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-2 md:p-8">
+        <div class="bg-white w-full max-w-2xl rounded-2xl md:rounded-[3rem] shadow-3xl overflow-hidden flex flex-col max-h-[96vh]">
+            <div class="p-4 md:p-8 border-b flex justify-between items-center">
+                <h3 class="font-black text-lg md:text-2xl tracking-tighter truncate" id="account-modal-title">계정 추가</h3>
+                <button onclick="closeAccountModal()" class="p-2 md:p-3 hover:bg-neutral-100 rounded-full flex-shrink-0"><i data-lucide="x"></i></button>
             </div>
-            <div class="p-10 space-y-6">
+            <div class="p-4 md:p-10 space-y-4 md:space-y-6 overflow-y-auto">
                 <input type="hidden" id="acc-orig-id">
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="text" id="acc-id" placeholder="아이디" class="p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold">
-                    <input type="text" id="acc-name" placeholder="이름" class="p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                    <input type="text" id="acc-id" placeholder="아이디" class="p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold">
+                    <input type="text" id="acc-name" placeholder="이름" class="p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold">
                 </div>
-                <input type="password" id="acc-pw" placeholder="비밀번호" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold">
+                <input type="password" id="acc-pw" placeholder="비밀번호" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold">
                 <div>
-                    <label class="text-[10px] font-black text-neutral-400 uppercase block mb-3">권한 레벨</label>
-                    <select id="acc-role" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold">
+                    <label class="text-[10px] font-black text-neutral-400 uppercase block mb-2 md:mb-3">권한 레벨</label>
+                    <select id="acc-role" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold">
                         <option value="staff">일반 관리자 (Staff)</option>
                         <option value="super">슈퍼 관리자 (Super)</option>
                     </select>
                 </div>
                 <div>
-                    <label class="text-[10px] font-black text-neutral-400 uppercase block mb-3">기능별 접근 권한 (Staff 전용)</label>
-                    <div id="acc-permissions" class="grid grid-cols-2 gap-3"></div>
+                    <label class="text-[10px] font-black text-neutral-400 uppercase block mb-2 md:mb-3">기능별 접근 권한 (Staff 전용)</label>
+                    <div id="acc-permissions" class="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3"></div>
                 </div>
             </div>
-            <div class="p-8 border-t bg-neutral-50 flex justify-end gap-4">
-                <button onclick="closeAccountModal()" class="px-8 py-4 font-black text-neutral-400">취소</button>
-                <button onclick="saveAccount()" class="px-12 py-4 bg-red-600 text-white rounded-2xl font-black hover:bg-red-700">저장하기</button>
+            <div class="p-4 md:p-8 border-t bg-neutral-50 flex justify-end gap-3 md:gap-4">
+                <button onclick="closeAccountModal()" class="px-6 md:px-8 py-3 md:py-4 font-black text-neutral-400">취소</button>
+                <button onclick="saveAccount()" class="px-8 md:px-12 py-3 md:py-4 bg-red-600 text-white rounded-2xl font-black hover:bg-red-700">저장하기</button>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script type="module" src="admin.js"></script>
+    <script>
+        // 사이드바 토글 (전역 함수)
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            const isOpen = sidebar.classList.toggle('active');
+            backdrop.classList.toggle('active', isOpen);
+            document.body.classList.toggle('sidebar-open', isOpen);
+        };
+    </script>
 </body>
 </html>

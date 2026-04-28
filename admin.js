@@ -19,6 +19,19 @@ let currentEditId = null;
 let selectedImage = null;
 let isResizing = false;
 
+// 모바일에서 사이드바 자동 닫기
+function closeSidebarOnMobile() {
+    if (window.innerWidth < 1024) {
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+        if (sidebar && sidebar.classList.contains('active')) {
+            sidebar.classList.remove('active');
+            backdrop.classList.remove('active');
+            document.body.classList.remove('sidebar-open');
+        }
+    }
+}
+
 window.handleLogin = function() {
     const id = document.getElementById('admin-id').value;
     const pw = document.getElementById('admin-pw').value;
@@ -32,7 +45,7 @@ window.handleLogin = function() {
         currentSessionId = startSession(user.id);
 
         document.getElementById('login-screen').classList.add('hidden');
-        document.getElementById('admin-panel').style.display = 'flex';
+        document.getElementById('admin-panel').style.display = 'block';
         document.getElementById('current-user-name').textContent = user.name;
         document.getElementById('current-user-role').textContent = user.role === 'super' ? 'Super Admin' : 'Staff Admin';
         document.getElementById('user-avatar').textContent = user.name[0];
@@ -78,9 +91,12 @@ function initAdminNav() {
         if (item.perm === 'super_only' && currentUser.role !== 'super') return;
         if (item.perm && item.perm !== 'super_only' && currentUser.role !== 'super' && !hasPermission(currentUser, item.perm)) return;
         const btn = document.createElement('button');
-        btn.className = `sidebar-link w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all text-sm mb-2 hover:bg-white/5`;
-        btn.innerHTML = `<i data-lucide="${item.icon}" class="w-5 h-5"></i> <span class="font-black">${item.label}</span>`;
-        btn.onclick = () => renderView(item.id, btn);
+        btn.className = `sidebar-link w-full flex items-center gap-4 px-5 lg:px-6 py-3 lg:py-4 rounded-2xl transition-all text-sm mb-2 hover:bg-white/5`;
+        btn.innerHTML = `<i data-lucide="${item.icon}" class="w-5 h-5 flex-shrink-0"></i> <span class="font-black">${item.label}</span>`;
+        btn.onclick = () => {
+            renderView(item.id, btn);
+            closeSidebarOnMobile();
+        };
         nav.appendChild(btn);
     });
     lucide.createIcons();
@@ -158,7 +174,7 @@ function timeAgo(timestamp) {
 
 function renderActivityFeed() {
     const logs = getLogs().slice().reverse().slice(0, 12);
-    if (!logs.length) return `<div class="p-12 text-center text-neutral-400 font-bold text-sm">최근 활동이 없습니다.</div>`;
+    if (!logs.length) return `<div class="p-8 md:p-12 text-center text-neutral-400 font-bold text-sm">최근 활동이 없습니다.</div>`;
     const accounts = getAll('accounts');
     return logs.map(log => {
         const acc = accounts.find(a => a.id === log.userId);
@@ -166,17 +182,17 @@ function renderActivityFeed() {
         const icon = getActionIcon(log.action);
         const color = getActionColor(log.action);
         return `
-            <div class="activity-item flex gap-4 p-4 rounded-2xl hover:bg-neutral-50 transition-all border-b border-neutral-50 last:border-0">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${color}">
+            <div class="activity-item flex gap-3 md:gap-4 p-3 md:p-4 rounded-2xl hover:bg-neutral-50 transition-all border-b border-neutral-50 last:border-0">
+                <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${color}">
                     <i data-lucide="${icon}" class="w-4 h-4"></i>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <div class="text-sm font-bold text-neutral-800 leading-snug">
+                    <div class="text-xs md:text-sm font-bold text-neutral-800 leading-snug">
                         <span class="text-red-600 font-black">${accName}</span>
                         <span class="text-neutral-500">(${log.userId})</span>
                         님이 <span class="font-black">${log.action}</span> 하였습니다
                     </div>
-                    <div class="text-xs text-neutral-400 font-bold mt-1 truncate">${log.detail}</div>
+                    <div class="text-[11px] md:text-xs text-neutral-400 font-bold mt-1 truncate">${log.detail}</div>
                     <div class="text-[10px] text-neutral-400 font-black mt-1.5 uppercase tracking-wider">${timeAgo(log.timestamp)} · ${log.timestamp}</div>
                 </div>
             </div>
@@ -200,72 +216,72 @@ function renderDashboard() {
     const todaySessions = sessions.filter(s => s.endTs >= todayStart.getTime()).length;
 
     return `
-        <div class="grid grid-cols-4 gap-6 mb-10">
-            <div class="stat-card bg-white p-8 rounded-[2rem] border-2 border-neutral-100 shadow-sm">
-                <div class="text-neutral-400 text-[10px] font-black uppercase mb-3 tracking-widest">마일스톤</div>
-                <div class="text-4xl font-black text-red-600">${counts.milestone}<span class="text-sm text-neutral-400 font-medium">건</span></div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-10">
+            <div class="stat-card bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] border-2 border-neutral-100 shadow-sm">
+                <div class="text-neutral-400 text-[10px] font-black uppercase mb-2 md:mb-3 tracking-widest">마일스톤</div>
+                <div class="text-2xl md:text-4xl font-black text-red-600">${counts.milestone}<span class="text-xs md:text-sm text-neutral-400 font-medium">건</span></div>
             </div>
-            <div class="stat-card bg-white p-8 rounded-[2rem] border-2 border-neutral-100 shadow-sm">
-                <div class="text-neutral-400 text-[10px] font-black uppercase mb-3 tracking-widest">의혹 항목</div>
-                <div class="text-4xl font-black italic">${counts.suspicion}<span class="text-sm text-neutral-400 font-medium">건</span></div>
+            <div class="stat-card bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] border-2 border-neutral-100 shadow-sm">
+                <div class="text-neutral-400 text-[10px] font-black uppercase mb-2 md:mb-3 tracking-widest">의혹 항목</div>
+                <div class="text-2xl md:text-4xl font-black italic">${counts.suspicion}<span class="text-xs md:text-sm text-neutral-400 font-medium">건</span></div>
             </div>
-            <div class="stat-card bg-white p-8 rounded-[2rem] border-2 border-neutral-100 shadow-sm">
-                <div class="text-neutral-400 text-[10px] font-black uppercase mb-3 tracking-widest">타임라인</div>
-                <div class="text-4xl font-black italic">${counts.timeline}<span class="text-sm text-neutral-400 font-medium">건</span></div>
+            <div class="stat-card bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] border-2 border-neutral-100 shadow-sm">
+                <div class="text-neutral-400 text-[10px] font-black uppercase mb-2 md:mb-3 tracking-widest">타임라인</div>
+                <div class="text-2xl md:text-4xl font-black italic">${counts.timeline}<span class="text-xs md:text-sm text-neutral-400 font-medium">건</span></div>
             </div>
-            <div class="stat-card bg-white p-8 rounded-[2rem] border-2 border-red-100 shadow-sm bg-red-50/10">
-                <div class="text-red-500 text-[10px] font-black uppercase mb-3 tracking-widest">비교 라인</div>
-                <div class="text-4xl font-black italic">${counts.comparison}<span class="text-sm text-neutral-400 font-medium">건</span></div>
+            <div class="stat-card bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] border-2 border-red-100 shadow-sm bg-red-50/10">
+                <div class="text-red-500 text-[10px] font-black uppercase mb-2 md:mb-3 tracking-widest">비교 라인</div>
+                <div class="text-2xl md:text-4xl font-black italic">${counts.comparison}<span class="text-xs md:text-sm text-neutral-400 font-medium">건</span></div>
             </div>
         </div>
-        <div class="grid grid-cols-3 gap-6 mb-10">
-            <div class="stat-card bg-gradient-to-br from-neutral-900 to-black p-8 rounded-[2rem] text-white shadow-2xl">
-                <div class="flex items-center gap-3 mb-3">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-10">
+            <div class="stat-card bg-gradient-to-br from-neutral-900 to-black p-5 md:p-8 rounded-2xl md:rounded-[2rem] text-white shadow-2xl">
+                <div class="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
                     <i data-lucide="clock" class="w-4 h-4 text-red-500"></i>
                     <div class="text-[10px] font-black uppercase tracking-widest text-red-500">평균 체류 시간</div>
                 </div>
-                <div class="text-4xl font-black">${Math.floor(avgDuration/60)}<span class="text-lg text-neutral-400 font-medium">분</span> ${avgDuration%60}<span class="text-lg text-neutral-400 font-medium">초</span></div>
-                <div class="text-xs text-neutral-400 mt-2 font-bold">관리자 전체 세션 평균</div>
+                <div class="text-2xl md:text-4xl font-black">${Math.floor(avgDuration/60)}<span class="text-base md:text-lg text-neutral-400 font-medium">분</span> ${avgDuration%60}<span class="text-base md:text-lg text-neutral-400 font-medium">초</span></div>
+                <div class="text-[11px] md:text-xs text-neutral-400 mt-1 md:mt-2 font-bold">관리자 전체 세션 평균</div>
             </div>
-            <div class="stat-card bg-white p-8 rounded-[2rem] border-2 border-neutral-100 shadow-sm">
-                <div class="flex items-center gap-3 mb-3">
+            <div class="stat-card bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] border-2 border-neutral-100 shadow-sm">
+                <div class="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
                     <i data-lucide="users" class="w-4 h-4 text-blue-500"></i>
                     <div class="text-[10px] font-black uppercase tracking-widest text-neutral-400">총 세션</div>
                 </div>
-                <div class="text-4xl font-black">${totalSessions}<span class="text-sm text-neutral-400 font-medium">건</span></div>
-                <div class="text-xs text-neutral-500 mt-2 font-bold">오늘 ${todaySessions}건</div>
+                <div class="text-2xl md:text-4xl font-black">${totalSessions}<span class="text-xs md:text-sm text-neutral-400 font-medium">건</span></div>
+                <div class="text-[11px] md:text-xs text-neutral-500 mt-1 md:mt-2 font-bold">오늘 ${todaySessions}건</div>
             </div>
-            <div class="stat-card bg-white p-8 rounded-[2rem] border-2 border-neutral-100 shadow-sm">
-                <div class="flex items-center gap-3 mb-3">
+            <div class="stat-card bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] border-2 border-neutral-100 shadow-sm">
+                <div class="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
                     <i data-lucide="file-clock" class="w-4 h-4 text-green-500"></i>
                     <div class="text-[10px] font-black uppercase tracking-widest text-neutral-400">누적 작업 로그</div>
                 </div>
-                <div class="text-4xl font-black">${logs.length}<span class="text-sm text-neutral-400 font-medium">건</span></div>
-                <div class="text-xs text-neutral-500 mt-2 font-bold">Netlify Blobs 영속화</div>
+                <div class="text-2xl md:text-4xl font-black">${logs.length}<span class="text-xs md:text-sm text-neutral-400 font-medium">건</span></div>
+                <div class="text-[11px] md:text-xs text-neutral-500 mt-1 md:mt-2 font-bold">서버 영속화</div>
             </div>
         </div>
-        <div class="grid grid-cols-5 gap-6">
-            <div class="col-span-3 bg-white rounded-[2.5rem] border-2 border-neutral-100 p-10">
-                <h4 class="font-black text-xl mb-2 flex justify-between items-center">주간 평균 체류 세션<span class="text-xs text-neutral-400 font-bold">Past 7 Days</span></h4>
-                <p class="text-xs text-neutral-400 font-bold mb-6">관리자 1인 세션 평균 체류 시간(초)</p>
-                <div class="relative" style="height:280px"><canvas id="statChart"></canvas></div>
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6">
+            <div class="lg:col-span-3 bg-white rounded-2xl md:rounded-[2.5rem] border-2 border-neutral-100 p-5 md:p-10">
+                <h4 class="font-black text-base md:text-xl mb-2 flex justify-between items-center">주간 평균 체류 세션<span class="text-[11px] md:text-xs text-neutral-400 font-bold">Past 7 Days</span></h4>
+                <p class="text-[11px] md:text-xs text-neutral-400 font-bold mb-4 md:mb-6">관리자 1인 세션 평균 체류 시간(초)</p>
+                <div class="relative" style="height:240px"><canvas id="statChart"></canvas></div>
             </div>
-            <div class="col-span-2 bg-white rounded-[2.5rem] border-2 border-neutral-100 overflow-hidden flex flex-col" style="max-height:480px">
-                <div class="p-7 border-b-2 border-neutral-50 flex justify-between items-center flex-shrink-0">
+            <div class="lg:col-span-2 bg-white rounded-2xl md:rounded-[2.5rem] border-2 border-neutral-100 overflow-hidden flex flex-col" style="max-height:480px">
+                <div class="p-5 md:p-7 border-b-2 border-neutral-50 flex justify-between items-center flex-shrink-0">
                     <div>
-                        <h4 class="font-black text-lg flex items-center gap-2"><span class="w-2 h-2 bg-red-600 rounded-full animate-pulse"></span>최근 활동 메시지</h4>
+                        <h4 class="font-black text-base md:text-lg flex items-center gap-2"><span class="w-2 h-2 bg-red-600 rounded-full animate-pulse"></span>최근 활동 메시지</h4>
                         <p class="text-[10px] text-neutral-400 font-bold uppercase tracking-widest mt-1">전체 관리자 공유 피드</p>
                     </div>
-                    <span class="text-[10px] font-black text-red-600 bg-red-50 px-3 py-1 rounded-full">LIVE</span>
+                    <span class="text-[10px] font-black text-red-600 bg-red-50 px-2 md:px-3 py-1 rounded-full">LIVE</span>
                 </div>
                 <div class="flex-1 overflow-y-auto activity-feed-list">${renderActivityFeed()}</div>
             </div>
         </div>
-        <div class="mt-8 p-6 bg-red-50 rounded-3xl border border-red-100 flex items-center gap-4">
-            <i data-lucide="shield-check" class="w-6 h-6 text-red-600"></i>
-            <div class="flex-1">
-                <div class="text-xs font-black text-red-600 uppercase tracking-widest mb-1">현재 세션</div>
-                <div class="text-sm font-black">${currentUser.name} (${currentUser.id}) · 권한: ${currentUser.role === 'super' ? '슈퍼 관리자 - 모든 기능 허용' : (currentUser.permissions || []).join(', ')}</div>
+        <div class="mt-6 md:mt-8 p-4 md:p-6 bg-red-50 rounded-2xl md:rounded-3xl border border-red-100 flex items-start md:items-center gap-3 md:gap-4">
+            <i data-lucide="shield-check" class="w-5 h-5 md:w-6 md:h-6 text-red-600 flex-shrink-0 mt-0.5 md:mt-0"></i>
+            <div class="flex-1 min-w-0">
+                <div class="text-[10px] md:text-xs font-black text-red-600 uppercase tracking-widest mb-1">현재 세션</div>
+                <div class="text-xs md:text-sm font-black break-words">${currentUser.name} (${currentUser.id}) · 권한: ${currentUser.role === 'super' ? '슈퍼 관리자' : (currentUser.permissions || []).join(', ')}</div>
             </div>
         </div>
     `;
@@ -285,7 +301,7 @@ function renderListView(viewId) {
         let c1, c2, c3;
         if (viewId === 'milestone') {
             c1 = item.date; c2 = item.title;
-            c3 = `<span class="px-3 py-1 rounded-lg text-[10px] font-black ${item.status==='current'?'bg-red-100 text-red-600':item.status==='future'?'bg-blue-100 text-blue-600':'bg-neutral-100 text-neutral-500'}">${item.status||'-'}</span>`;
+            c3 = `<span class="px-2 md:px-3 py-1 rounded-lg text-[10px] font-black ${item.status==='current'?'bg-red-100 text-red-600':item.status==='future'?'bg-blue-100 text-blue-600':'bg-neutral-100 text-neutral-500'}">${item.status||'-'}</span>`;
         } else if (viewId === 'suspicion') {
             c1 = `#${item.no || idx+1}`; c2 = item.title; c3 = (item.summary || '').slice(0, 50);
         } else if (viewId === 'timeline') {
@@ -300,16 +316,16 @@ function renderListView(viewId) {
         }
         return `
             <tr class="hover:bg-neutral-50/50">
-                <td class="px-8 py-6 text-xs font-black text-neutral-400">${idx+1}</td>
-                <td class="px-8 py-6 text-sm font-bold">${c1 || '-'}</td>
-                <td class="px-8 py-6 text-sm font-black">${c2 || '-'}</td>
-                <td class="px-8 py-6 text-xs text-neutral-500">${c3 || '-'}</td>
-                <td class="px-8 py-6">
-                    <div class="flex gap-2">
-                        <button onclick="moveContent('${viewId}','${item.id}',-1)" class="p-2 hover:bg-neutral-100 rounded-lg" title="위로"><i data-lucide="arrow-up" class="w-3 h-3"></i></button>
-                        <button onclick="moveContent('${viewId}','${item.id}',1)" class="p-2 hover:bg-neutral-100 rounded-lg" title="아래로"><i data-lucide="arrow-down" class="w-3 h-3"></i></button>
-                        <button onclick="openEditor('${viewId}','${item.id}')" class="px-4 py-2 bg-neutral-100 rounded-lg text-[10px] font-black hover:bg-neutral-200">수정</button>
-                        <button onclick="deleteContent('${viewId}','${item.id}')" class="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-[10px] font-black hover:bg-red-100">삭제</button>
+                <td class="px-3 md:px-8 py-4 md:py-6 text-xs font-black text-neutral-400">${idx+1}</td>
+                <td class="px-3 md:px-8 py-4 md:py-6 text-xs md:text-sm font-bold whitespace-nowrap">${c1 || '-'}</td>
+                <td class="px-3 md:px-8 py-4 md:py-6 text-xs md:text-sm font-black min-w-[150px]">${c2 || '-'}</td>
+                <td class="px-3 md:px-8 py-4 md:py-6 text-[11px] md:text-xs text-neutral-500 hidden md:table-cell">${c3 || '-'}</td>
+                <td class="px-3 md:px-8 py-4 md:py-6">
+                    <div class="flex gap-1 md:gap-2 flex-wrap">
+                        <button onclick="moveContent('${viewId}','${item.id}',-1)" class="p-1.5 md:p-2 hover:bg-neutral-100 rounded-lg" title="위로"><i data-lucide="arrow-up" class="w-3 h-3"></i></button>
+                        <button onclick="moveContent('${viewId}','${item.id}',1)" class="p-1.5 md:p-2 hover:bg-neutral-100 rounded-lg" title="아래로"><i data-lucide="arrow-down" class="w-3 h-3"></i></button>
+                        <button onclick="openEditor('${viewId}','${item.id}')" class="px-3 md:px-4 py-1.5 md:py-2 bg-neutral-100 rounded-lg text-[10px] font-black hover:bg-neutral-200">수정</button>
+                        <button onclick="deleteContent('${viewId}','${item.id}')" class="px-3 md:px-4 py-1.5 md:py-2 bg-red-50 text-red-600 rounded-lg text-[10px] font-black hover:bg-red-100">삭제</button>
                     </div>
                 </td>
             </tr>
@@ -317,34 +333,36 @@ function renderListView(viewId) {
     }).join('');
 
     return `
-        <div class="bg-white rounded-[2.5rem] border-2 border-neutral-100 overflow-hidden shadow-sm">
-            <div class="p-10 border-b-2 border-neutral-50 flex justify-between items-center">
+        <div class="bg-white rounded-2xl md:rounded-[2.5rem] border-2 border-neutral-100 overflow-hidden shadow-sm">
+            <div class="p-5 md:p-10 border-b-2 border-neutral-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 md:gap-4">
                 <div>
-                    <h4 class="font-black text-2xl tracking-tighter">${menuItems.find(m=>m.id===viewId).label}</h4>
-                    <p class="text-xs text-neutral-400 mt-1">총 ${items.length}건 · 서버 동기화</p>
+                    <h4 class="font-black text-lg md:text-2xl tracking-tighter">${menuItems.find(m=>m.id===viewId).label}</h4>
+                    <p class="text-[11px] md:text-xs text-neutral-400 mt-1">총 ${items.length}건 · 서버 동기화</p>
                 </div>
-                <button onclick="openEditor('${viewId}')" class="bg-red-600 text-white px-10 py-4 rounded-2xl text-xs font-black shadow-2xl shadow-red-200 hover:bg-red-700 transition-all">+ 새 콘텐츠 작성</button>
+                <button onclick="openEditor('${viewId}')" class="bg-red-600 text-white px-6 md:px-10 py-3 md:py-4 rounded-2xl text-xs font-black shadow-2xl shadow-red-200 hover:bg-red-700 transition-all w-full sm:w-auto">+ 새 콘텐츠 작성</button>
             </div>
             ${items.length === 0 ? `
-                <div class="p-32 text-center">
-                    <div class="w-24 h-24 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-8 border-4 border-white shadow-inner">
-                        <i data-lucide="archive" class="text-neutral-200 w-10 h-10"></i>
+                <div class="p-12 md:p-32 text-center">
+                    <div class="w-16 h-16 md:w-24 md:h-24 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-6 md:mb-8 border-4 border-white shadow-inner">
+                        <i data-lucide="archive" class="text-neutral-200 w-8 h-8 md:w-10 md:h-10"></i>
                     </div>
-                    <p class="text-neutral-400 font-bold mb-2">등록된 데이터가 없습니다.</p>
+                    <p class="text-neutral-400 font-bold mb-2 text-sm md:text-base">등록된 데이터가 없습니다.</p>
                 </div>
             ` : `
-                <table class="w-full text-left">
-                    <thead class="bg-neutral-50 text-[10px] font-black uppercase text-neutral-400">
-                        <tr>
-                            <th class="px-8 py-6">#</th>
-                            <th class="px-8 py-6">${cols[0]}</th>
-                            <th class="px-8 py-6">${cols[1]}</th>
-                            <th class="px-8 py-6">${cols[2]}</th>
-                            <th class="px-8 py-6">관리</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y-2 divide-neutral-50">${rowHtml}</tbody>
-                </table>
+                <div class="table-wrap">
+                    <table class="w-full text-left">
+                        <thead class="bg-neutral-50 text-[10px] font-black uppercase text-neutral-400">
+                            <tr>
+                                <th class="px-3 md:px-8 py-4 md:py-6">#</th>
+                                <th class="px-3 md:px-8 py-4 md:py-6">${cols[0]}</th>
+                                <th class="px-3 md:px-8 py-4 md:py-6">${cols[1]}</th>
+                                <th class="px-3 md:px-8 py-4 md:py-6 hidden md:table-cell">${cols[2]}</th>
+                                <th class="px-3 md:px-8 py-4 md:py-6">관리</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y-2 divide-neutral-50">${rowHtml}</tbody>
+                    </table>
+                </div>
             `}
         </div>
     `;
@@ -353,47 +371,49 @@ function renderListView(viewId) {
 function renderUserList() {
     const accounts = getAll('accounts');
     return `
-        <div class="bg-white rounded-[2.5rem] border-2 border-neutral-100 overflow-hidden shadow-sm">
-            <div class="p-10 border-b-2 border-neutral-50 flex justify-between items-center">
-                <h4 class="font-black text-2xl tracking-tighter">접속 계정 & 권한 설정</h4>
-                <button onclick="openAccountModal()" class="bg-neutral-900 text-white px-8 py-4 rounded-2xl text-xs font-black shadow-xl hover:bg-black">+ 신규 계정 추가</button>
+        <div class="bg-white rounded-2xl md:rounded-[2.5rem] border-2 border-neutral-100 overflow-hidden shadow-sm">
+            <div class="p-5 md:p-10 border-b-2 border-neutral-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 md:gap-4">
+                <h4 class="font-black text-lg md:text-2xl tracking-tighter">접속 계정 & 권한 설정</h4>
+                <button onclick="openAccountModal()" class="bg-neutral-900 text-white px-6 md:px-8 py-3 md:py-4 rounded-2xl text-xs font-black shadow-xl hover:bg-black w-full sm:w-auto">+ 신규 계정 추가</button>
             </div>
-            <table class="w-full text-left">
-                <thead class="bg-neutral-50 text-[10px] font-black uppercase text-neutral-400">
-                    <tr>
-                        <th class="px-10 py-6">사용자 (ID)</th>
-                        <th class="px-10 py-6">권한 레벨</th>
-                        <th class="px-10 py-6">접근 허용 메뉴</th>
-                        <th class="px-10 py-6">최근 접속</th>
-                        <th class="px-10 py-6">ACTION</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y-2 divide-neutral-50">
-                    ${accounts.map(acc => `
-                        <tr class="hover:bg-neutral-50/50 transition-colors">
-                            <td class="px-10 py-8">
-                                <div class="font-black text-neutral-800">${acc.name}</div>
-                                <div class="text-xs text-neutral-400 font-bold">${acc.id}</div>
-                            </td>
-                            <td class="px-10 py-8">
-                                <span class="permission-badge ${acc.role === 'super' ? 'bg-red-100 text-red-600' : 'bg-neutral-100 text-neutral-600'} font-black uppercase tracking-widest">${acc.role}</span>
-                            </td>
-                            <td class="px-10 py-8">
-                                <div class="flex flex-wrap gap-2">
-                                    ${(acc.permissions || []).map(p => `<span class="px-3 py-1 bg-white border border-neutral-200 rounded-lg text-[10px] font-bold text-neutral-500">${p}</span>`).join('')}
-                                </div>
-                            </td>
-                            <td class="px-10 py-8 text-xs font-black text-neutral-400">${acc.lastLogin || '-'}</td>
-                            <td class="px-10 py-8">
-                                <div class="flex gap-4">
-                                    <button onclick="editAccount('${acc.id}')" class="text-[10px] font-black text-neutral-400 hover:text-black">수정</button>
-                                    ${acc.id === 'admin' ? '' : `<button onclick="removeAccount('${acc.id}')" class="text-[10px] font-black text-red-500 hover:text-red-700">제거</button>`}
-                                </div>
-                            </td>
+            <div class="table-wrap">
+                <table class="w-full text-left">
+                    <thead class="bg-neutral-50 text-[10px] font-black uppercase text-neutral-400">
+                        <tr>
+                            <th class="px-4 md:px-10 py-4 md:py-6">사용자 (ID)</th>
+                            <th class="px-4 md:px-10 py-4 md:py-6">권한</th>
+                            <th class="px-4 md:px-10 py-4 md:py-6 hidden md:table-cell">접근 메뉴</th>
+                            <th class="px-4 md:px-10 py-4 md:py-6 hidden lg:table-cell">최근 접속</th>
+                            <th class="px-4 md:px-10 py-4 md:py-6">ACTION</th>
                         </tr>
-                    `).join('')}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="divide-y-2 divide-neutral-50">
+                        ${accounts.map(acc => `
+                            <tr class="hover:bg-neutral-50/50 transition-colors">
+                                <td class="px-4 md:px-10 py-5 md:py-8">
+                                    <div class="font-black text-neutral-800 text-sm md:text-base">${acc.name}</div>
+                                    <div class="text-[11px] md:text-xs text-neutral-400 font-bold">${acc.id}</div>
+                                </td>
+                                <td class="px-4 md:px-10 py-5 md:py-8">
+                                    <span class="permission-badge ${acc.role === 'super' ? 'bg-red-100 text-red-600' : 'bg-neutral-100 text-neutral-600'} font-black uppercase tracking-widest">${acc.role}</span>
+                                </td>
+                                <td class="px-4 md:px-10 py-5 md:py-8 hidden md:table-cell">
+                                    <div class="flex flex-wrap gap-1 md:gap-2">
+                                        ${(acc.permissions || []).map(p => `<span class="px-2 md:px-3 py-1 bg-white border border-neutral-200 rounded-lg text-[10px] font-bold text-neutral-500">${p}</span>`).join('')}
+                                    </div>
+                                </td>
+                                <td class="px-4 md:px-10 py-5 md:py-8 text-[11px] md:text-xs font-black text-neutral-400 hidden lg:table-cell">${acc.lastLogin || '-'}</td>
+                                <td class="px-4 md:px-10 py-5 md:py-8">
+                                    <div class="flex gap-2 md:gap-4">
+                                        <button onclick="editAccount('${acc.id}')" class="text-[10px] font-black text-neutral-400 hover:text-black">수정</button>
+                                        ${acc.id === 'admin' ? '' : `<button onclick="removeAccount('${acc.id}')" class="text-[10px] font-black text-red-500 hover:text-red-700">제거</button>`}
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
         </div>
     `;
 }
@@ -412,34 +432,36 @@ function renderLogView() {
     const actions = Array.from(new Set(logs.map(l => l.action)));
     const users = Array.from(new Set(logs.map(l => l.userId)));
     return `
-        <div class="bg-white rounded-[2.5rem] border-2 border-neutral-100 overflow-hidden shadow-sm">
-            <div class="p-10 border-b-2 border-neutral-50 flex justify-between items-center flex-wrap gap-4">
-                <div>
-                    <h4 class="font-black text-2xl tracking-tighter">관리자 작업 이력</h4>
-                    <p class="text-xs text-neutral-400 mt-1">전체 ${logs.length}건 · 서버 영속화</p>
+        <div class="bg-white rounded-2xl md:rounded-[2.5rem] border-2 border-neutral-100 overflow-hidden shadow-sm">
+            <div class="p-5 md:p-10 border-b-2 border-neutral-50 flex flex-col gap-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <h4 class="font-black text-lg md:text-2xl tracking-tighter">관리자 작업 이력</h4>
+                        <p class="text-[11px] md:text-xs text-neutral-400 mt-1">전체 ${logs.length}건 · 서버 영속화</p>
+                    </div>
+                    <button onclick="handleClearLogs()" class="px-4 md:px-5 py-2 md:py-3 bg-red-50 text-red-600 rounded-2xl text-xs font-black hover:bg-red-100 w-full sm:w-auto">전체 초기화</button>
                 </div>
-                <div class="flex gap-3 flex-wrap">
-                    <input type="text" id="log-search" placeholder="🔎 검색 (ID/액션/상세)" class="px-5 py-3 bg-neutral-50 border border-neutral-200 rounded-2xl text-sm font-bold w-64">
-                    <select id="log-filter-user" class="px-5 py-3 bg-neutral-50 border border-neutral-200 rounded-2xl text-sm font-bold">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-3">
+                    <input type="text" id="log-search" placeholder="🔎 검색 (ID/액션/상세)" class="px-4 md:px-5 py-2.5 md:py-3 bg-neutral-50 border border-neutral-200 rounded-2xl text-sm font-bold">
+                    <select id="log-filter-user" class="px-4 md:px-5 py-2.5 md:py-3 bg-neutral-50 border border-neutral-200 rounded-2xl text-sm font-bold">
                         <option value="">전체 사용자</option>
                         ${users.map(u => `<option value="${u}">${u}</option>`).join('')}
                     </select>
-                    <select id="log-filter-action" class="px-5 py-3 bg-neutral-50 border border-neutral-200 rounded-2xl text-sm font-bold">
+                    <select id="log-filter-action" class="px-4 md:px-5 py-2.5 md:py-3 bg-neutral-50 border border-neutral-200 rounded-2xl text-sm font-bold">
                         <option value="">전체 작업</option>
                         ${actions.map(a => `<option value="${a}">${a}</option>`).join('')}
                     </select>
-                    <button onclick="handleClearLogs()" class="px-5 py-3 bg-red-50 text-red-600 rounded-2xl text-xs font-black hover:bg-red-100">전체 초기화</button>
                 </div>
             </div>
-            <div class="overflow-x-auto">
+            <div class="table-wrap">
                 <table class="w-full text-left">
                     <thead class="bg-neutral-50 text-[10px] font-black uppercase text-neutral-400">
                         <tr>
-                            <th class="px-8 py-6">#</th>
-                            <th class="px-8 py-6">일시</th>
-                            <th class="px-8 py-6">사용자 ID</th>
-                            <th class="px-8 py-6">작업 종류</th>
-                            <th class="px-8 py-6">상세 내용</th>
+                            <th class="px-3 md:px-8 py-4 md:py-6">#</th>
+                            <th class="px-3 md:px-8 py-4 md:py-6">일시</th>
+                            <th class="px-3 md:px-8 py-4 md:py-6">사용자</th>
+                            <th class="px-3 md:px-8 py-4 md:py-6">작업</th>
+                            <th class="px-3 md:px-8 py-4 md:py-6 hidden md:table-cell">상세</th>
                         </tr>
                     </thead>
                     <tbody id="log-tbody" class="divide-y divide-neutral-100">${renderLogRows(logs)}</tbody>
@@ -450,14 +472,14 @@ function renderLogView() {
 }
 
 function renderLogRows(logs) {
-    if (!logs.length) return `<tr><td colspan="5" class="p-20 text-center text-neutral-400 font-bold">조건에 맞는 로그가 없습니다.</td></tr>`;
+    if (!logs.length) return `<tr><td colspan="5" class="p-12 md:p-20 text-center text-neutral-400 font-bold">조건에 맞는 로그가 없습니다.</td></tr>`;
     return logs.map((log, idx) => `
         <tr class="log-row">
-            <td class="px-8 py-5 text-xs font-black text-neutral-400">${idx + 1}</td>
-            <td class="px-8 py-5 text-xs font-mono font-bold text-neutral-600">${log.timestamp}</td>
-            <td class="px-8 py-5 text-sm font-black">${log.userId}</td>
-            <td class="px-8 py-5"><span class="log-action-badge ${actionBadgeColor(log.action)}">${log.action}</span></td>
-            <td class="px-8 py-5 text-xs text-neutral-600">${log.detail}</td>
+            <td class="px-3 md:px-8 py-3 md:py-5 text-[11px] md:text-xs font-black text-neutral-400">${idx + 1}</td>
+            <td class="px-3 md:px-8 py-3 md:py-5 text-[10px] md:text-xs font-mono font-bold text-neutral-600 whitespace-nowrap">${log.timestamp}</td>
+            <td class="px-3 md:px-8 py-3 md:py-5 text-xs md:text-sm font-black">${log.userId}</td>
+            <td class="px-3 md:px-8 py-3 md:py-5"><span class="log-action-badge ${actionBadgeColor(log.action)}">${log.action}</span></td>
+            <td class="px-3 md:px-8 py-3 md:py-5 text-[11px] md:text-xs text-neutral-600 hidden md:table-cell">${log.detail}</td>
         </tr>
     `).join('');
 }
@@ -539,84 +561,84 @@ function buildDynamicFields(type, data = {}) {
     let fields = '';
     if (type === 'milestone') {
         fields = `
-            <div class="col-span-2 space-y-2">
+            <div class="md:col-span-2 space-y-2">
                 <label class="text-[10px] font-black text-neutral-400 uppercase">제목</label>
-                <input type="text" id="f-title" placeholder="제목" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold" value="${escapeAttr(data.title)}">
+                <input type="text" id="f-title" placeholder="제목" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold" value="${escapeAttr(data.title)}">
             </div>
             <div>
                 <label class="text-[10px] font-black text-neutral-400 uppercase">날짜</label>
-                <input type="date" id="f-date" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.date)}">
+                <input type="date" id="f-date" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.date)}">
             </div>
             <div>
                 <label class="text-[10px] font-black text-neutral-400 uppercase">상태</label>
-                <select id="f-status" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2">
+                <select id="f-status" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2">
                     <option value="past" ${data.status==='past'?'selected':''}>과거</option>
                     <option value="current" ${data.status==='current'?'selected':''}>진행중</option>
                     <option value="future" ${data.status==='future'?'selected':''}>예정</option>
                 </select>
             </div>
-            <div class="col-span-2">
+            <div class="md:col-span-2">
                 <label class="text-[10px] font-black text-neutral-400 uppercase">목록 요약</label>
-                <input type="text" id="f-summary" placeholder="목록에 표시될 요약" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.summary)}">
+                <input type="text" id="f-summary" placeholder="목록에 표시될 요약" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.summary)}">
             </div>`;
     } else if (type === 'suspicion') {
         fields = `
             <div>
                 <label class="text-[10px] font-black text-neutral-400 uppercase">번호</label>
-                <input type="number" id="f-no" placeholder="의혹 번호" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.no)}">
+                <input type="number" id="f-no" placeholder="의혹 번호" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.no)}">
             </div>
             <div>
                 <label class="text-[10px] font-black text-neutral-400 uppercase">제목</label>
-                <input type="text" id="f-title" placeholder="제목" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.title)}">
+                <input type="text" id="f-title" placeholder="제목" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.title)}">
             </div>
-            <div class="col-span-2">
+            <div class="md:col-span-2">
                 <label class="text-[10px] font-black text-neutral-400 uppercase">개요 (요약)</label>
-                <input type="text" id="f-summary" placeholder="요약 설명" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.summary)}">
+                <input type="text" id="f-summary" placeholder="요약 설명" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.summary)}">
             </div>`;
     } else if (type === 'timeline') {
         fields = `
             <div>
                 <label class="text-[10px] font-black text-neutral-400 uppercase">날짜</label>
-                <input type="date" id="f-date" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.date)}">
+                <input type="date" id="f-date" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.date)}">
             </div>
             <div>
                 <label class="text-[10px] font-black text-neutral-400 uppercase">제목</label>
-                <input type="text" id="f-title" placeholder="제목" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.title)}">
+                <input type="text" id="f-title" placeholder="제목" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.title)}">
             </div>
-            <div class="col-span-2">
+            <div class="md:col-span-2">
                 <label class="text-[10px] font-black text-neutral-400 uppercase">교육청 입장</label>
-                <textarea id="f-edu" rows="2" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2">${escapeAttr(data.edu)}</textarea>
+                <textarea id="f-edu" rows="2" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2">${escapeAttr(data.edu)}</textarea>
             </div>
-            <div class="col-span-2">
+            <div class="md:col-span-2">
                 <label class="text-[10px] font-black text-neutral-400 uppercase">유족 입장 / 대응</label>
-                <textarea id="f-family" rows="2" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2">${escapeAttr(data.family)}</textarea>
+                <textarea id="f-family" rows="2" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2">${escapeAttr(data.family)}</textarea>
             </div>
-            <div class="col-span-2">
+            <div class="md:col-span-2">
                 <label class="text-[10px] font-black text-neutral-400 uppercase">증거 자료명</label>
-                <input type="text" id="f-evidence" placeholder="증거 파일명" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.evidence)}">
+                <input type="text" id="f-evidence" placeholder="증거 파일명" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.evidence)}">
             </div>`;
     } else if (type === 'comparison') {
         fields = `
-            <div class="col-span-2">
+            <div class="md:col-span-2">
                 <label class="text-[10px] font-black text-neutral-400 uppercase">비교 주제</label>
-                <input type="text" id="f-subject" placeholder="예: 초기 위로금" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.subject)}">
+                <input type="text" id="f-subject" placeholder="예: 초기 위로금" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.subject)}">
             </div>
-            <div class="col-span-2">
+            <div class="md:col-span-2">
                 <label class="text-[10px] font-black text-neutral-400 uppercase">카테고리</label>
-                <input type="text" id="f-category" placeholder="예: 타 직군 비교 (경찰/소방)" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.category)}">
+                <input type="text" id="f-category" placeholder="예: 타 직군 비교 (경찰/소방)" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.category)}">
             </div>
-            <div class="col-span-2 p-4 bg-red-50 rounded-2xl">
+            <div class="md:col-span-2 p-3 md:p-4 bg-red-50 rounded-2xl">
                 <div class="text-[10px] font-black text-red-600 mb-3">제주 측 데이터</div>
-                <div class="grid grid-cols-3 gap-3">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
                     <input type="text" id="f-jeju-label" placeholder="라벨" class="p-3 bg-white border rounded-xl font-bold text-sm" value="${escapeAttr(data.jejuLabel)}">
                     <input type="number" id="f-jeju-val" placeholder="수치" class="p-3 bg-white border rounded-xl font-bold text-sm" value="${escapeAttr(data.jejuVal)}">
                     <input type="text" id="f-jeju-unit" placeholder="단위" class="p-3 bg-white border rounded-xl font-bold text-sm" value="${escapeAttr(data.jejuUnit)}">
                 </div>
                 <input type="text" id="f-jeju-detail" placeholder="상세 설명" class="w-full p-3 bg-white border rounded-xl font-bold text-sm mt-3" value="${escapeAttr(data.jejuDetail)}">
             </div>
-            <div class="col-span-2 p-4 bg-neutral-100 rounded-2xl">
+            <div class="md:col-span-2 p-3 md:p-4 bg-neutral-100 rounded-2xl">
                 <div class="text-[10px] font-black text-neutral-600 mb-3">비교 대상 데이터</div>
-                <div class="grid grid-cols-3 gap-3">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
                     <input type="text" id="f-other-label" placeholder="라벨" class="p-3 bg-white border rounded-xl font-bold text-sm" value="${escapeAttr(data.otherLabel)}">
                     <input type="number" id="f-other-val" placeholder="수치" class="p-3 bg-white border rounded-xl font-bold text-sm" value="${escapeAttr(data.otherVal)}">
                     <input type="text" id="f-other-unit" placeholder="단위" class="p-3 bg-white border rounded-xl font-bold text-sm" value="${escapeAttr(data.otherUnit)}">
@@ -627,7 +649,7 @@ function buildDynamicFields(type, data = {}) {
         fields = `
             <div>
                 <label class="text-[10px] font-black text-neutral-400 uppercase">종류</label>
-                <select id="f-type" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2">
+                <select id="f-type" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2">
                     <option value="emergency" ${data.type==='emergency'?'selected':''}>긴급 헤더 (Emergency Bar)</option>
                     <option value="cta" ${data.type==='cta'?'selected':''}>연대 요청 (Call to Action)</option>
                     <option value="footer" ${data.type==='footer'?'selected':''}>푸터 (Footer)</option>
@@ -635,14 +657,14 @@ function buildDynamicFields(type, data = {}) {
             </div>
             <div>
                 <label class="text-[10px] font-black text-neutral-400 uppercase">활성화 여부</label>
-                <select id="f-isactive" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2">
+                <select id="f-isactive" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2">
                     <option value="true" ${data.isActive!==false?'selected':''}>활성</option>
                     <option value="false" ${data.isActive===false?'selected':''}>비활성</option>
                 </select>
             </div>
-            <div class="col-span-2">
+            <div class="md:col-span-2">
                 <label class="text-[10px] font-black text-neutral-400 uppercase">제목/요약</label>
-                <input type="text" id="f-title" placeholder="제목" class="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.title)}">
+                <input type="text" id="f-title" placeholder="제목" class="w-full p-3 md:p-4 bg-neutral-50 border border-neutral-100 rounded-2xl font-bold mt-2" value="${escapeAttr(data.title)}">
             </div>`;
     }
     container.innerHTML = fields;
@@ -826,7 +848,7 @@ window.openEditor = function(type, id = null) {
     currentEditId = id;
     const data = id ? (getById(type, id) || {}) : {};
     document.getElementById('editor-modal').classList.remove('hidden');
-    document.getElementById('modal-title').textContent = id ? `${type.toUpperCase()} 콘텐츠 수정` : `${type.toUpperCase()} 신규 콘텐츠 등록`;
+    document.getElementById('modal-title').textContent = id ? `${type.toUpperCase()} 수정` : `${type.toUpperCase()} 신규 등록`;
     buildDynamicFields(type, data);
     document.getElementById('edit-image').value = data.image || '';
     document.getElementById('edit-image-align').value = data.imageAlign || 'center';
