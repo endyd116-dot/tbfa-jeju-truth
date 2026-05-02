@@ -1,4 +1,4 @@
-import { initStore, getAll, upsertItem, deleteItem, moveItem, getById, setSession, getSession, clearSession, hasPermission, PERMISSION_KEYS, addLog, getLogs, clearLogs, startSession, endSession, getDailyAvgDurations, getSessions, setAll } from './store.js';
+import { initStore, getAll, upsertItem, deleteItem, moveItem, moveItemLocal, saveOrder, getById, setSession, getSession, clearSession, hasPermission, PERMISSION_KEYS, addLog, getLogs, clearLogs, startSession, endSession, getDailyAvgDurations, getSessions, setAll, getDisplayConfig, setDisplayConfig, sortByDate } from './store.js';
 
 const menuItems = [
     { id: 'dashboard', label: '종합 대시보드', icon: 'pie-chart', desc: '실시간 방문 및 클릭 지표 분석', perm: null },
@@ -18,6 +18,10 @@ let currentEditType = null;
 let currentEditId = null;
 let selectedImage = null;
 let isResizing = false;
+
+const DATE_SORT_TYPES = ['milestone', 'timeline'];
+const ORDER_SAVE_TYPES = ['suspicion', 'comparison', 'contentManagement'];
+const pendingOrderTypes = new Set();
 
 // 모바일에서 사이드바 자동 닫기
 function closeSidebarOnMobile() {
@@ -64,8 +68,13 @@ window.handleLogout = function() {
     location.reload();
 };
 
-window.addEventListener('beforeunload', () => {
+window.addEventListener('beforeunload', (e) => {
     if (currentSessionId) endSession(currentSessionId);
+    if (pendingOrderTypes.size > 0) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+    }
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -106,6 +115,16 @@ function renderView(viewId, activeBtn = null) {
     if ((viewId === 'users' || viewId === 'logs') && currentUser.role !== 'super') {
         alert('접근 권한이 없습니다. 슈퍼 관리자 전용 메뉴입니다.');
         return;
+    }
+    if (pendingOrderTypes.size > 0) {
+        const stale = Array.from(pendingOrderTypes).filter(t => t !== viewId);
+        if (stale.length > 0) {
+            const ok = confirm(`[${stale.map(typeKor).join(', ')}] 의 순서 변경사항이 저장되지 않았습니다.\n\n확인을 누르면 변경사항을 폐기하고 이동합니다. 취소하면 현재 화면에 머무릅니다.`);
+            if (!ok) return;
+            stale.forEach(t => pendingOrderTypes.delete(t));
+            location.reload();
+            return;
+        }
     }
     const content = document.getElementById('admin-content');
     const title = document.getElementById('view-title');
@@ -288,7 +307,13 @@ function renderDashboard() {
 }
 
 function renderListView(viewId) {
-    const items = getAll(viewId);
+    const isDateSort = DATE_SORT_TYPES.includes(viewId);
+    const isOrderSave = ORDER_SAVE_TYPES.includes(viewId);
+    const cfg = getDisplayConfig();
+    const sortKey = viewId === 'milestone' ? 'milestoneSort' : viewId === 'timeline' ? 'timelineSort' : null;
+    const currentDir = sortKey ? (cfg[sortKey] || 'desc') : null;
+    const rawItems = getAll(viewId);
+    const items = isDateSort ? sortByDate(rawItems, currentDir) : rawItems;
     const labels = {
         milestone: ['일자', '제목', '상태'],
         suspicion: ['번호', '제목', '요약'],
@@ -314,6 +339,9 @@ function renderListView(viewId) {
             c2 = item.title;
             c3 = item.isActive ? `<span class="text-green-600 font-black">활성</span>` : `<span class="text-neutral-400 font-black">비활성</span>`;
         }
+        const moveButtons = isOrderSave ? `
+                        <button onclick="moveContent('${viewId}','${item.id}',-1)" class="p-1.5 md:p-2 hover:bg-neutral-100 rounded-lg" title="위로"><i data-lucide="arrow-up" class="w-3 h-3"></i></button>
+                        <button onclick="moveContent('${viewId}','${item.id}',1)" class="p-1.5 md:p-2 hover:bg-neutral-100 rounded-lg" title="아래로"><i data-lucide="arrow-down" class="w-3 h-3"></i></button>` : '';
         return `
             <tr class="hover:bg-neutral-50/50">
                 <td class="px-3 md:px-8 py-4 md:py-6 text-xs font-black text-neutral-400">${idx+1}</td>
@@ -322,8 +350,7 @@ function renderListView(viewId) {
                 <td class="px-3 md:px-8 py-4 md:py-6 text-[11px] md:text-xs text-neutral-500 hidden md:table-cell">${c3 || '-'}</td>
                 <td class="px-3 md:px-8 py-4 md:py-6">
                     <div class="flex gap-1 md:gap-2 flex-wrap">
-                        <button onclick="moveContent('${viewId}','${item.id}',-1)" class="p-1.5 md:p-2 hover:bg-neutral-100 rounded-lg" title="위로"><i data-lucide="arrow-up" class="w-3 h-3"></i></button>
-                        <button onclick="moveContent('${viewId}','${item.id}',1)" class="p-1.5 md:p-2 hover:bg-neutral-100 rounded-lg" title="아래로"><i data-lucide="arrow-down" class="w-3 h-3"></i></button>
+                        ${moveButtons}
                         <button onclick="openEditor('${viewId}','${item.id}')" class="px-3 md:px-4 py-1.5 md:py-2 bg-neutral-100 rounded-lg text-[10px] font-black hover:bg-neutral-200">수정</button>
                         <button onclick="deleteContent('${viewId}','${item.id}')" class="px-3 md:px-4 py-1.5 md:py-2 bg-red-50 text-red-600 rounded-lg text-[10px] font-black hover:bg-red-100">삭제</button>
                     </div>
@@ -331,6 +358,35 @@ function renderListView(viewId) {
             </tr>
         `;
     }).join('');
+
+    let controlBar = '';
+    if (isDateSort) {
+        controlBar = `
+            <div class="px-5 md:px-10 py-4 bg-neutral-50/50 border-b-2 border-neutral-50 flex flex-col sm:flex-row sm:items-center gap-3">
+                <div class="flex items-center gap-2 text-[11px] md:text-xs font-black text-neutral-500 uppercase tracking-wider">
+                    <i data-lucide="calendar" class="w-4 h-4"></i> 날짜 정렬
+                </div>
+                <select onchange="setContentSort('${viewId}', this.value)" class="px-4 py-2 bg-white border border-neutral-200 rounded-xl text-xs font-bold w-full sm:w-auto">
+                    <option value="desc" ${currentDir==='desc'?'selected':''}>최신순 (앞에서 보임)</option>
+                    <option value="asc" ${currentDir==='asc'?'selected':''}>오래된순 (앞에서 보임)</option>
+                </select>
+                <span class="text-[10px] md:text-[11px] font-bold text-neutral-400">설정 즉시 사이트에 반영됩니다.</span>
+            </div>
+        `;
+    } else if (isOrderSave) {
+        const dirty = pendingOrderTypes.has(viewId);
+        controlBar = `
+            <div class="px-5 md:px-10 py-4 bg-neutral-50/50 border-b-2 border-neutral-50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-2 text-[11px] md:text-xs font-black ${dirty ? 'text-red-600' : 'text-neutral-500'} uppercase tracking-wider">
+                    <i data-lucide="${dirty ? 'alert-circle' : 'move-vertical'}" class="w-4 h-4"></i>
+                    ${dirty ? '저장되지 않은 순서 변경이 있습니다.' : '↑ ↓ 버튼으로 위치를 조정한 뒤 [순서 저장]을 눌러 게시 순서를 확정하세요.'}
+                </div>
+                <button onclick="saveContentOrder('${viewId}')" class="px-5 md:px-6 py-2 md:py-3 ${dirty ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-neutral-200 hover:bg-neutral-300 text-neutral-600'} rounded-2xl text-xs font-black w-full sm:w-auto transition-all">
+                    <i data-lucide="save" class="w-3 h-3 inline-block mr-1"></i> 순서 저장
+                </button>
+            </div>
+        `;
+    }
 
     return `
         <div class="bg-white rounded-2xl md:rounded-[2.5rem] border-2 border-neutral-100 overflow-hidden shadow-sm">
@@ -341,6 +397,7 @@ function renderListView(viewId) {
                 </div>
                 <button onclick="openEditor('${viewId}')" class="bg-red-600 text-white px-6 md:px-10 py-3 md:py-4 rounded-2xl text-xs font-black shadow-2xl shadow-red-200 hover:bg-red-700 transition-all w-full sm:w-auto">+ 새 콘텐츠 작성</button>
             </div>
+            ${controlBar}
             ${items.length === 0 ? `
                 <div class="p-12 md:p-32 text-center">
                     <div class="w-16 h-16 md:w-24 md:h-24 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-6 md:mb-8 border-4 border-white shadow-inner">
@@ -993,8 +1050,41 @@ window.deleteContent = function(type, id) {
 };
 
 window.moveContent = function(type, id, direction) {
-    moveItem(type, id, direction);
-    addLog(currentUser.id, `${typeKor(type)} 순서변경`, `[${type}] ID ${id} ${direction > 0 ? '아래로' : '위로'} 이동`);
+    if (DATE_SORT_TYPES.includes(type)) {
+        alert('마일스톤/타임라인은 날짜 정렬 설정으로만 순서가 결정됩니다.');
+        return;
+    }
+    const moved = moveItemLocal(type, id, direction);
+    if (moved) {
+        pendingOrderTypes.add(type);
+        renderView(type);
+    }
+};
+
+window.saveContentOrder = async function(type) {
+    if (!ORDER_SAVE_TYPES.includes(type)) return;
+    if (!pendingOrderTypes.has(type)) {
+        alert('변경된 순서가 없습니다.');
+        return;
+    }
+    try {
+        await saveOrder(type);
+        pendingOrderTypes.delete(type);
+        const titles = (getAll(type) || []).map(x => x.title || x.subject || x.id).slice(0, 5).join(', ');
+        addLog(currentUser.id, `${typeKor(type)} 순서 저장`, `[${type}] 게시 순서 확정 (상위: ${titles})`);
+        alert('게시 순서가 저장되어 사이트에 반영됩니다.');
+        renderView(type);
+    } catch (e) {
+        // postAction already alerts
+    }
+};
+
+window.setContentSort = function(type, direction) {
+    if (!DATE_SORT_TYPES.includes(type)) return;
+    if (direction !== 'asc' && direction !== 'desc') return;
+    const key = type === 'milestone' ? 'milestoneSort' : 'timelineSort';
+    setDisplayConfig({ [key]: direction });
+    addLog(currentUser.id, `${typeKor(type)} 정렬 변경`, `[${type}] 날짜 ${direction === 'desc' ? '최신순' : '오래된순'}으로 변경`);
     renderView(type);
 };
 

@@ -11,6 +11,13 @@ const memoryCache = {
   sessions: []
 };
 
+const DEFAULT_DISPLAY_CONFIG = {
+  milestoneSort: 'desc',
+  timelineSort: 'desc'
+};
+
+let displayConfig = { ...DEFAULT_DISPLAY_CONFIG };
+
 const SESSION_KEY = 'tj_session';
 let initialized = false;
 
@@ -23,6 +30,9 @@ export async function initStore() {
     Object.keys(memoryCache).forEach(k => {
       if (Array.isArray(data[k])) memoryCache[k] = data[k];
     });
+    if (data.displayConfig && typeof data.displayConfig === 'object') {
+      displayConfig = { ...DEFAULT_DISPLAY_CONFIG, ...data.displayConfig };
+    }
     initialized = true;
   } catch (err) {
     console.error('initStore failed:', err);
@@ -87,6 +97,46 @@ export function moveItem(type, id, direction) {
     [list[idx], list[target]] = [list[target], list[idx]];
     postAction({ action: 'move', type, id, direction });
   }
+}
+
+export function moveItemLocal(type, id, direction) {
+  const list = memoryCache[type] || [];
+  const idx = list.findIndex(x => x.id === id);
+  const target = idx + direction;
+  if (idx >= 0 && target >= 0 && target < list.length) {
+    [list[idx], list[target]] = [list[target], list[idx]];
+    return true;
+  }
+  return false;
+}
+
+export function saveOrder(type) {
+  const list = memoryCache[type] || [];
+  return postAction({ action: 'setAll', type, list });
+}
+
+export function getDisplayConfig() {
+  return { ...displayConfig };
+}
+
+export function setDisplayConfig(patch) {
+  displayConfig = { ...displayConfig, ...patch };
+  postAction({ action: 'setDisplayConfig', config: displayConfig });
+  return { ...displayConfig };
+}
+
+export function sortByDate(list, direction) {
+  const dir = direction === 'asc' ? 1 : -1;
+  return list.slice().sort((a, b) => {
+    const av = a && a.date ? a.date : '';
+    const bv = b && b.date ? b.date : '';
+    if (!av && !bv) return 0;
+    if (!av) return 1;
+    if (!bv) return -1;
+    if (av < bv) return -1 * dir;
+    if (av > bv) return 1 * dir;
+    return 0;
+  });
 }
 
 export function getById(type, id) {
