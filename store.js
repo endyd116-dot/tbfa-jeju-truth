@@ -61,13 +61,31 @@ function postAction(payload) {
   });
 }
 
+// 서로 다른 mutation 이 동시에 서버에 도달해서 read-modify-write 충돌을 일으키지 않도록
+// 모든 mutation 요청을 클라이언트 측에서 직렬화한다.
+// 추가 효과: 직전 요청이 끝난 뒤 응답 list 로 메모리 캐시를 동기화하므로
+// 화면이 서버 상태와 항상 일치하게 된다.
+let mutationQueue = Promise.resolve();
+function queueMutation(payload, applyResponse) {
+  const run = () => postAction(payload).then(res => {
+    if (applyResponse) applyResponse(res);
+    return res;
+  });
+  const next = mutationQueue.then(run, run);
+  // 큐가 끊기지 않도록 실패는 흡수하지만, 호출자에게는 에러를 그대로 전달한다.
+  mutationQueue = next.catch(() => {});
+  return next;
+}
+
 export function getAll(type) {
   return memoryCache[type] || [];
 }
 
 export function setAll(type, list) {
   memoryCache[type] = list;
-  postAction({ action: 'setAll', type, list });
+  return queueMutation({ action: 'setAll', type, list }, (res) => {
+    if (res && Array.isArray(res.list)) memoryCache[type] = res.list;
+  });
 }
 
 export function upsertItem(type, item) {
@@ -80,13 +98,18 @@ export function upsertItem(type, item) {
     item.id = type + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
     memoryCache[type].push(item);
   }
-  postAction({ action: 'upsert', type, item });
+  queueMutation({ action: 'upsert', type, item }, (res) => {
+    // 서버가 권위 있는 list 를 돌려주므로 로컬 캐시를 그것으로 교체한다.
+    if (res && Array.isArray(res.list)) memoryCache[type] = res.list;
+  });
   return item;
 }
 
 export function deleteItem(type, id) {
   memoryCache[type] = (memoryCache[type] || []).filter(x => x.id !== id);
-  postAction({ action: 'delete', type, id });
+  return queueMutation({ action: 'delete', type, id }, (res) => {
+    if (res && Array.isArray(res.list)) memoryCache[type] = res.list;
+  });
 }
 
 export function moveItem(type, id, direction) {
@@ -95,8 +118,11 @@ export function moveItem(type, id, direction) {
   const target = idx + direction;
   if (idx >= 0 && target >= 0 && target < list.length) {
     [list[idx], list[target]] = [list[target], list[idx]];
-    postAction({ action: 'move', type, id, direction });
+    return queueMutation({ action: 'move', type, id, direction }, (res) => {
+      if (res && Array.isArray(res.list)) memoryCache[type] = res.list;
+    });
   }
+  return Promise.resolve();
 }
 
 export function moveItemLocal(type, id, direction) {
@@ -112,7 +138,9 @@ export function moveItemLocal(type, id, direction) {
 
 export function saveOrder(type) {
   const list = memoryCache[type] || [];
-  return postAction({ action: 'setAll', type, list });
+  return queueMutation({ action: 'setAll', type, list }, (res) => {
+    if (res && Array.isArray(res.list)) memoryCache[type] = res.list;
+  });
 }
 
 export function getDisplayConfig() {
@@ -121,7 +149,11 @@ export function getDisplayConfig() {
 
 export function setDisplayConfig(patch) {
   displayConfig = { ...displayConfig, ...patch };
-  postAction({ action: 'setDisplayConfig', config: displayConfig });
+  queueMutation({ action: 'setDisplayConfig', config: displayConfig }, (res) => {
+    if (res && res.displayConfig && typeof res.displayConfig === 'object') {
+      displayConfig = { ...DEFAULT_DISPLAY_CONFIG, ...res.displayConfig };
+    }
+  });
   return { ...displayConfig };
 }
 
@@ -189,7 +221,7 @@ export function addLog(userId, action, detail) {
   };
   if (!memoryCache.logs) memoryCache.logs = [];
   memoryCache.logs.push(log);
-  postAction({ action: 'addLog', log });
+  return queueMutation({ action: 'addLog', log });
 }
 
 export function getLogs() {
@@ -198,7 +230,7 @@ export function getLogs() {
 
 export function clearLogs() {
   memoryCache.logs = [];
-  postAction({ action: 'clear', type: 'logs' });
+  return queueMutation({ action: 'clear', type: 'logs' });
 }
 
 // 호환성을 위해 빈 함수로 유지 (서버에서 자동 시드됨)
@@ -210,7 +242,7 @@ export function startSession(userId) {
   const session = { id, userId, startTs: Date.now(), endTs: null, duration: 0 };
   if (!memoryCache.sessions) memoryCache.sessions = [];
   memoryCache.sessions.push(session);
-  postAction({ action: 'startSession', session });
+  queueMutation({ action: 'startSession', session });
   return id;
 }
 
@@ -223,7 +255,7 @@ export function endSession(sessionId) {
   const duration = Math.max(0, Math.floor((endTs - sessions[idx].startTs) / 1000));
   sessions[idx].endTs = endTs;
   sessions[idx].duration = duration;
-  postAction({ action: 'endSession', id: sessionId, endTs, duration });
+  queueMutation({ action: 'endSession', id: sessionId, endTs, duration });
 }
 
 export function getSessions() {

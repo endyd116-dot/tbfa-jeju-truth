@@ -566,10 +566,14 @@ function bindLogFilters() {
     actionF.addEventListener('change', apply);
 }
 
-window.handleClearLogs = function() {
+window.handleClearLogs = async function() {
     if (!confirm('모든 로그를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
-    clearLogs();
-    addLog(currentUser.id, '로그 초기화', '전체 로그 데이터 삭제');
+    try {
+        await clearLogs();
+        await addLog(currentUser.id, '로그 초기화', '전체 로그 데이터 삭제');
+    } catch (e) {
+        return;
+    }
     renderView('logs');
 };
 
@@ -1005,7 +1009,7 @@ window.closeEditor = function() {
     document.getElementById('editor-modal').classList.add('hidden');
 };
 
-window.saveAndClose = function() {
+window.saveAndClose = async function() {
     const type = currentEditType;
     const isNew = !currentEditId;
     const item = currentEditId ? { ...getById(type, currentEditId) } : {};
@@ -1030,8 +1034,13 @@ window.saveAndClose = function() {
     item.content = quill ? quill.root.innerHTML : '';
     const titleField = item.title || item.subject;
     if (!titleField) { alert('제목/주제는 필수 입력 항목입니다.'); return; }
-    upsertItem(type, item);
-    addLog(currentUser.id, `${typeKor(type)} ${isNew ? '등록' : '수정'}`, `[${type}] "${titleField}" ${isNew ? '신규 등록' : 'ID:' + item.id + ' 수정'}`);
+    try {
+        // 서버 저장이 끝난 뒤에 화면을 다시 그려야, 직후 화면이 서버의 권위 있는 상태와 일치한다.
+        await upsertItem(type, item);
+        await addLog(currentUser.id, `${typeKor(type)} ${isNew ? '등록' : '수정'}`, `[${type}] "${titleField}" ${isNew ? '신규 등록' : 'ID:' + item.id + ' 수정'}`);
+    } catch (e) {
+        return;
+    }
     alert('데이터가 서버에 저장되었습니다. 모든 기기에서 즉시 반영됩니다.');
     closeEditor();
     renderView(type);
@@ -1041,11 +1050,15 @@ function typeKor(type) {
     return { milestone: '마일스톤', suspicion: '의혹', timeline: '타임라인', comparison: '비교라인', accounts: '계정', contentManagement: '컨텐츠' }[type] || type;
 }
 
-window.deleteContent = function(type, id) {
+window.deleteContent = async function(type, id) {
     if (!confirm('정말 이 항목을 삭제하시겠습니까?')) return;
     const target = getById(type, id);
-    deleteItem(type, id);
-    addLog(currentUser.id, `${typeKor(type)} 삭제`, `[${type}] "${target?.title || target?.subject || id}" 삭제 (ID: ${id})`);
+    try {
+        await deleteItem(type, id);
+        await addLog(currentUser.id, `${typeKor(type)} 삭제`, `[${type}] "${target?.title || target?.subject || id}" 삭제 (ID: ${id})`);
+    } catch (e) {
+        return;
+    }
     renderView(type);
 };
 
@@ -1079,12 +1092,16 @@ window.saveContentOrder = async function(type) {
     }
 };
 
-window.setContentSort = function(type, direction) {
+window.setContentSort = async function(type, direction) {
     if (!DATE_SORT_TYPES.includes(type)) return;
     if (direction !== 'asc' && direction !== 'desc') return;
     const key = type === 'milestone' ? 'milestoneSort' : 'timelineSort';
     setDisplayConfig({ [key]: direction });
-    addLog(currentUser.id, `${typeKor(type)} 정렬 변경`, `[${type}] 날짜 ${direction === 'desc' ? '최신순' : '오래된순'}으로 변경`);
+    try {
+        await addLog(currentUser.id, `${typeKor(type)} 정렬 변경`, `[${type}] 날짜 ${direction === 'desc' ? '최신순' : '오래된순'}으로 변경`);
+    } catch (e) {
+        // 로그 실패는 무시하고 화면은 갱신
+    }
     renderView(type);
 };
 
@@ -1137,34 +1154,39 @@ window.openAccountModal = function(accId = null) {
 window.closeAccountModal = function() { document.getElementById('account-modal').classList.add('hidden'); };
 window.editAccount = function(id) { openAccountModal(id); };
 
-window.removeAccount = function(id) {
+window.removeAccount = async function(id) {
     if (id === 'admin') return alert('초기 슈퍼관리자는 삭제할 수 없습니다.');
     if (!confirm('정말 이 계정을 삭제하시겠습니까?')) return;
     const accounts = getAll('accounts').filter(a => a.id !== id);
-    setAll('accounts', accounts);
-    addLog(currentUser.id, '계정 삭제', `계정[${id}] 제거`);
+    try {
+        await setAll('accounts', accounts);
+        await addLog(currentUser.id, '계정 삭제', `계정[${id}] 제거`);
+    } catch (e) {
+        return;
+    }
     renderView('users');
 };
 
 // 교체할 window.saveAccount 메소드 전체
-window.saveAccount = function() {
+window.saveAccount = async function() {
     const origId = document.getElementById('acc-orig-id').value;
     const id = document.getElementById('acc-id').value.trim();
     const name = document.getElementById('acc-name').value.trim();
     const pw = document.getElementById('acc-pw').value;
     const role = document.getElementById('acc-role').value;
     const perms = Array.from(document.querySelectorAll('.acc-perm:checked')).map(c => c.value);
-    
+
     if (!id || !name || !pw) return alert('아이디/이름/비밀번호는 필수입니다.');
-    
+
     const accounts = getAll('accounts');
     const permissions = role === 'super' ? ['all'] : perms;
-    
+    let logEntry = null;
+
     if (origId) {
         const idx = accounts.findIndex(a => a.id === origId);
         if (idx >= 0) accounts[idx] = { ...accounts[idx], name, pw, role, permissions };
-        addLog(currentUser.id, '계정 수정', `계정 [${origId}] 정보 수정 (권한: ${role})`);
-        
+        logEntry = { action: '계정 수정', detail: `계정 [${origId}] 정보 수정 (권한: ${role})` };
+
         // [중요] 현재 로그인한 본인의 계정을 수정한 경우 세션 즉시 업데이트
         if (currentUser.id === origId) {
             currentUser = accounts[idx];
@@ -1173,10 +1195,15 @@ window.saveAccount = function() {
     } else {
         if (accounts.find(a => a.id === id)) return alert('이미 존재하는 아이디입니다.');
         accounts.push({ id, pw, name, role, permissions, lastLogin: '-' });
-        addLog(currentUser.id, '계정 등록', `신규 계정 [${id}/${name}] 추가 (권한: ${role})`);
+        logEntry = { action: '계정 등록', detail: `신규 계정 [${id}/${name}] 추가 (권한: ${role})` };
     }
-    
-    setAll('accounts', accounts);
+
+    try {
+        await setAll('accounts', accounts);
+        if (logEntry) await addLog(currentUser.id, logEntry.action, logEntry.detail);
+    } catch (e) {
+        return;
+    }
     closeAccountModal();
     renderView('users');
 };
