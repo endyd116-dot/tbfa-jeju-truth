@@ -15,6 +15,12 @@ const VALID_TYPES = [
   'contentManagement', 'accounts', 'logs', 'sessions'
 ];
 
+const DISPLAY_CONFIG_KEY = 'displayConfig';
+const DEFAULT_DISPLAY_CONFIG = {
+  milestoneSort: 'desc',
+  timelineSort: 'desc'
+};
+
 const DEFAULT_ACCOUNTS = [
   { id: 'admin', pw: '1234', name: '슈퍼 관리자', role: 'super', permissions: ['all'], lastLogin: '-' },
   { id: 'staff_1', pw: '1234', name: '콘텐츠 운영팀', role: 'staff', permissions: ['milestone', 'timeline', 'suspicion', 'comparison', 'contentManagement'], lastLogin: '-' }
@@ -59,17 +65,26 @@ const SEED_MAP = {
 // [수정된 부분] 데이터가 null일 때만 초기 시드 삽입, 잘못된 형태면 빈 배열 반환
 async function loadData(store, type) {
   let data = await store.get(type, { type: 'json' });
-  
+
   if (data === null) {
     data = SEED_MAP[type] ? SEED_MAP[type]() : [];
     await store.setJSON(type, data);
   }
-  
+
   if (!Array.isArray(data)) {
       return [];
   }
-  
+
   return data;
+}
+
+async function loadDisplayConfig(store) {
+  let cfg = await store.get(DISPLAY_CONFIG_KEY, { type: 'json' });
+  if (!cfg || typeof cfg !== 'object' || Array.isArray(cfg)) {
+    cfg = { ...DEFAULT_DISPLAY_CONFIG };
+    await store.setJSON(DISPLAY_CONFIG_KEY, cfg);
+  }
+  return { ...DEFAULT_DISPLAY_CONFIG, ...cfg };
 }
 
 function jsonResponse(body, status = 200) {
@@ -91,12 +106,20 @@ export default async (req) => {
       for (const type of VALID_TYPES) {
         result[type] = await loadData(store, type);
       }
+      result.displayConfig = await loadDisplayConfig(store);
       return jsonResponse(result);
     }
 
     if (req.method === 'POST') {
       const body = await req.json();
       const { action, type } = body;
+
+      if (action === 'setDisplayConfig') {
+        const current = await loadDisplayConfig(store);
+        const next = { ...current, ...(body.config || {}) };
+        await store.setJSON(DISPLAY_CONFIG_KEY, next);
+        return jsonResponse({ displayConfig: next });
+      }
 
       if (action === 'addLog') {
         const logs = await loadData(store, 'logs');

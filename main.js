@@ -1,4 +1,4 @@
-import { initStore, getAll } from './store.js';
+import { initStore, getAll, getDisplayConfig, sortByDate } from './store.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -99,7 +99,8 @@ function initContentManagement() {
 function initMilestones() {
     const container = document.getElementById('milestone-container');
     const linksContainer = document.getElementById('milestone-links');
-    const milestones = getAll('milestone');
+    const cfg = getDisplayConfig();
+    const milestones = sortByDate(getAll('milestone'), cfg.milestoneSort || 'desc');
     container.innerHTML = '';
     linksContainer.innerHTML = '';
 
@@ -169,7 +170,8 @@ function initSuspicions() {
 function initTimeline() {
     const list = document.getElementById('timeline-list');
     list.innerHTML = '';
-    const timelineData = getAll('timeline');
+    const cfg = getDisplayConfig();
+    const timelineData = sortByDate(getAll('timeline'), cfg.timelineSort || 'desc');
     timelineData.forEach((t) => {
         const item = document.createElement('div');
         item.id = t.id;
