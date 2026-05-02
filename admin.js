@@ -1056,6 +1056,7 @@ window.removeAccount = function(id) {
     renderView('users');
 };
 
+// 교체할 window.saveAccount 메소드 전체
 window.saveAccount = function() {
     const origId = document.getElementById('acc-orig-id').value;
     const id = document.getElementById('acc-id').value.trim();
@@ -1063,18 +1064,28 @@ window.saveAccount = function() {
     const pw = document.getElementById('acc-pw').value;
     const role = document.getElementById('acc-role').value;
     const perms = Array.from(document.querySelectorAll('.acc-perm:checked')).map(c => c.value);
+    
     if (!id || !name || !pw) return alert('아이디/이름/비밀번호는 필수입니다.');
+    
     const accounts = getAll('accounts');
     const permissions = role === 'super' ? ['all'] : perms;
+    
     if (origId) {
         const idx = accounts.findIndex(a => a.id === origId);
         if (idx >= 0) accounts[idx] = { ...accounts[idx], name, pw, role, permissions };
         addLog(currentUser.id, '계정 수정', `계정 [${origId}] 정보 수정 (권한: ${role})`);
+        
+        // [중요] 현재 로그인한 본인의 계정을 수정한 경우 세션 즉시 업데이트
+        if (currentUser.id === origId) {
+            currentUser = accounts[idx];
+            setSession(currentUser);
+        }
     } else {
         if (accounts.find(a => a.id === id)) return alert('이미 존재하는 아이디입니다.');
         accounts.push({ id, pw, name, role, permissions, lastLogin: '-' });
         addLog(currentUser.id, '계정 등록', `신규 계정 [${id}/${name}] 추가 (권한: ${role})`);
     }
+    
     setAll('accounts', accounts);
     closeAccountModal();
     renderView('users');

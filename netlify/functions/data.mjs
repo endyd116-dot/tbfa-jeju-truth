@@ -1,3 +1,4 @@
+// netlify/functions/data.mjs (전체 복사해서 덮어쓰기)
 import { getStore } from "@netlify/blobs";
 import {
   seedMilestones,
@@ -55,12 +56,19 @@ const SEED_MAP = {
   sessions: generateSeedSessions
 };
 
+// [수정된 부분] 데이터가 null일 때만 초기 시드 삽입, 잘못된 형태면 빈 배열 반환
 async function loadData(store, type) {
   let data = await store.get(type, { type: 'json' });
-  if (data === null || data === undefined) {
+  
+  if (data === null) {
     data = SEED_MAP[type] ? SEED_MAP[type]() : [];
     await store.setJSON(type, data);
   }
+  
+  if (!Array.isArray(data)) {
+      return [];
+  }
+  
   return data;
 }
 
