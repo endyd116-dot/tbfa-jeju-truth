@@ -1008,6 +1008,15 @@ window.openAccountModal = function(accId = null) {
             <span class="text-sm font-bold">${p}</span>
         </label>
     `).join('');
+
+    // [추가된 부분] 창 열 때마다 비밀번호 숨김 상태로 초기화
+    const pwInput = document.getElementById('acc-pw');
+    const eyeIcon = document.getElementById('pw-eye-icon');
+    if (pwInput && eyeIcon) {
+        pwInput.type = 'password';
+        eyeIcon.setAttribute('data-lucide', 'eye');
+    }
+
     if (accId) {
         const acc = getAll('accounts').find(a => a.id === accId);
         if (acc) {
@@ -1110,4 +1119,18 @@ window.handleGeneralFileUpload = async function(e) {
         label.classList.remove('opacity-50', 'pointer-events-none');
         lucide.createIcons();
     }
+};
+// ====== 비밀번호 표시/숨김 토글 핸들러 ======
+window.togglePasswordVisibility = function() {
+    const pwInput = document.getElementById('acc-pw');
+    const eyeIcon = document.getElementById('pw-eye-icon');
+    
+    if (pwInput.type === 'password') {
+        pwInput.type = 'text'; // 비밀번호 보이기
+        eyeIcon.setAttribute('data-lucide', 'eye-off'); // 눈 감은 아이콘으로 변경
+    } else {
+        pwInput.type = 'password'; // 비밀번호 숨기기
+        eyeIcon.setAttribute('data-lucide', 'eye'); // 눈 뜬 아이콘으로 변경
+    }
+    lucide.createIcons(); // 아이콘 다시 그리기
 };
