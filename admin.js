@@ -675,17 +675,29 @@ function escapeAttr(v) {
     return String(v).replace(new RegExp('"', 'g'), '&quot;');
 }
 
+// 기존 함수를 찾아서 이걸로 덮어쓰세요
 function customImageHandler() {
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
     input.setAttribute('accept', 'image/*');
     input.click();
-    input.onchange = () => {
+    input.onchange = async () => {
         const file = input.files[0];
         if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => insertImageToEditor(e.target.result);
-        reader.readAsDataURL(file);
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const response = await fetch("/.netlify/functions/file-api", {
+                method: "POST",
+                body: formData
+            });
+            const data = await response.json();
+            if (data.url) insertImageToEditor(data.url);
+        } catch (error) {
+            alert("본문 이미지 업로드 실패");
+        }
     };
 }
 
@@ -903,12 +915,32 @@ function updateImagePreview() {
     else preview.textContent = '이미지 없음';
 }
 
-window.handleImageUpload = function(e) {
+
+window.handleImageUpload = async function(e) {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => { document.getElementById('edit-image').value = ev.target.result; updateImagePreview(); };
-    reader.readAsDataURL(file);
+
+    const preview = document.getElementById('image-preview');
+    preview.textContent = "서버 업로드 중...";
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+        const response = await fetch("/.netlify/functions/file-api", {
+            method: "POST",
+            body: formData
+        });
+        const data = await response.json();
+
+        if (data.url) {
+            document.getElementById('edit-image').value = data.url;
+            updateImagePreview();
+        }
+    } catch (error) {
+        alert("이미지 업로드 실패: " + error.message);
+        preview.textContent = "업로드 실패";
+    }
 };
 
 window.closeEditor = function() {
@@ -1037,4 +1069,45 @@ window.saveAccount = function() {
     setAll('accounts', accounts);
     closeAccountModal();
     renderView('users');
+};
+
+// 파일의 가장 밑에 추가하세요
+window.handleGeneralFileUpload = async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // 용량 제한 방어 로직 (너무 큰 파일 업로드 시 멈춤)
+    if (file.size > 20 * 1024 * 1024) {
+        alert("20MB 이하의 파일만 업로드 가능합니다.");
+        return;
+    }
+
+    const label = e.target.parentElement;
+    const originalContent = label.innerHTML;
+    label.innerHTML = `<span class="animate-pulse">서버로 전송 중...</span>`;
+    label.classList.add('opacity-50', 'pointer-events-none');
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+        const response = await fetch("/.netlify/functions/file-api", {
+            method: "POST",
+            body: formData
+        });
+        const data = await response.json();
+
+        if (data.url) {
+            // 파일명과 다운로드 링크를 텍스트 박스에 자동 삽입
+            document.getElementById('edit-file').value = data.fileName;
+            document.getElementById('edit-file-url').value = data.url;
+            alert(`[${data.fileName}] 파일이 안전하게 서버에 등록되었습니다.`);
+        }
+    } catch (error) {
+        alert("파일 업로드 실패: " + error.message);
+    } finally {
+        label.innerHTML = originalContent;
+        label.classList.remove('opacity-50', 'pointer-events-none');
+        lucide.createIcons();
+    }
 };

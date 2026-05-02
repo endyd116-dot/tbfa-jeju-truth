@@ -229,12 +229,13 @@
             <div class="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12 space-y-6 md:space-y-8">
                 <div id="dynamic-fields" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8"></div>
 
+                <!-- 대표 이미지 / 첨부 미디어 영역 -->
                 <div class="space-y-3 md:space-y-4">
                     <label class="text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em]">대표 이미지 / 첨부 미디어</label>
                     <div class="flex flex-col sm:flex-row gap-3 md:gap-4">
-                        <input type="text" id="edit-image" placeholder="이미지 URL을 입력하세요" class="flex-1 p-3 md:p-5 bg-neutral-50 border border-neutral-100 rounded-2xl text-sm font-bold">
-                        <label class="px-6 md:px-8 py-3 md:py-0 bg-neutral-900 text-white rounded-2xl text-xs font-black flex items-center justify-center cursor-pointer">
-                            파일 업로드
+                        <input type="text" id="edit-image" placeholder="이미지 주소 (자동입력)" class="flex-1 p-3 md:p-5 bg-neutral-50 border border-neutral-100 rounded-2xl text-sm font-bold" readonly>
+                        <label class="px-6 md:px-8 py-3 md:py-0 bg-neutral-900 text-white rounded-2xl text-xs font-black flex items-center justify-center cursor-pointer hover:bg-black transition-all">
+                            이미지 직접 업로드
                             <input type="file" id="edit-image-file" class="hidden" accept="image/*" onchange="handleImageUpload(event)">
                         </label>
                     </div>
@@ -253,16 +254,22 @@
                         </div>
                         <div>
                             <label class="text-[10px] font-black text-neutral-400 uppercase block mb-2">미리보기</label>
-                            <div id="image-preview" class="w-full h-12 bg-neutral-100 rounded-2xl flex items-center justify-center text-[10px] text-neutral-400 font-bold">이미지 없음</div>
+                            <div id="image-preview" class="w-full h-12 bg-neutral-100 rounded-2xl flex items-center justify-center text-[10px] text-neutral-400 font-bold overflow-hidden">이미지 없음</div>
                         </div>
                     </div>
                 </div>
 
+                <!-- 증빙 자료 첨부 영역 -->
                 <div class="space-y-3 md:space-y-4">
-                    <label class="text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em]">첨부 파일</label>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                        <input type="text" id="edit-file" placeholder="파일명 (예: 보고서.pdf)" class="p-3 md:p-5 bg-neutral-50 border border-neutral-100 rounded-2xl text-sm font-bold">
-                        <input type="text" id="edit-file-url" placeholder="다운로드 URL" class="p-3 md:p-5 bg-neutral-50 border border-neutral-100 rounded-2xl text-sm font-bold">
+                    <label class="text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em]">증빙 자료 (PDF, 한글, 워드, 엑셀 등)</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+                        <input type="text" id="edit-file" placeholder="파일명 (자동입력)" class="p-3 md:p-5 bg-neutral-50 border border-neutral-100 rounded-2xl text-sm font-bold" readonly>
+                        <input type="text" id="edit-file-url" placeholder="다운로드 주소 (자동입력)" class="p-3 md:p-5 bg-neutral-50 border border-neutral-100 rounded-2xl text-sm font-bold" readonly>
+                        <label class="px-6 md:px-8 py-3 md:py-0 bg-red-600 text-white rounded-2xl text-xs font-black flex items-center justify-center cursor-pointer hover:bg-red-700 transition-all shadow-lg shadow-red-200">
+                            <i data-lucide="upload-cloud" class="w-4 h-4 mr-2"></i> 파일 직접 업로드
+                            <!-- 한글, PDF, 워드, 엑셀, 파워포인트 등 범용 문서 확장자 허용 -->
+                            <input type="file" id="edit-doc-file" class="hidden" accept=".pdf,.hwp,.hwpx,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" onchange="handleGeneralFileUpload(event)">
+                        </label>
                     </div>
                 </div>
 
